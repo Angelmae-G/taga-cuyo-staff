@@ -1,76 +1,37 @@
- // Import Firebase SDKs
- import { initializeApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
- import { getFirestore, collection, addDoc, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js";
- import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js";
- import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-storage.js";
+// Import Firebase SDKs
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js";
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-storage.js";
 
- // Firebase configuration
- const firebaseConfig = {
-     apiKey: "AIzaSyAqr7jav_7l0Y7gIhfTklJXnHPzjAYV8f4",
-     authDomain: "taga-cuyo-app.firebaseapp.com",
-     projectId: "taga-cuyo-app",
-     storageBucket: "taga-cuyo-app.firebasestorage.app",
-     messagingSenderId: "908851804845",
-     appId: "1:908851804845:web:dff839dc552a573a23a424",
-     measurementId: "G-NVSY2HPNX4"
- };
+// Firebase configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyAqr7jav_7l0Y7gIhfTklJXnHPzjAYV8f4",
+    authDomain: "taga-cuyo-app.firebaseapp.com",
+    projectId: "taga-cuyo-app",
+    storageBucket: "taga-cuyo-app.firebasestorage.app",
+    messagingSenderId: "908851804845",
+    appId: "1:908851804845:web:dff839dc552a573a23a424",
+    measurementId: "G-NVSY2HPNX4"
+};
 
 
- // Initialize Firebase
- const app = initializeApp(firebaseConfig);
- const db = getFirestore(app);
- const auth = getAuth(app);
- const storage = getStorage(app);
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+const storage = getStorage(app);
 
- let currentUser = null;
- let isLoggingOut = false;
+let currentUser = null;
+let isLoggingOut = false;
 
-// Initialize functions after DOM loads
-document.addEventListener('DOMContentLoaded', () => {
-    // Load initial data
-    loadCategories();
-    loadLessons();
 
-    // Add event listeners
-    document.getElementById('form-select').addEventListener('change', toggleForm);
-    document.getElementById('category-select').addEventListener('change', loadSubcategories);
-});
-
-// Make functions available to window
-window.toggleForm = toggleForm;
-window.addOptionToCategory = addOptionToCategory;
-window.addOptionToLesson = addOptionToLesson;
-window.addWordToCategory = addWordToCategory;
-window.addWordToLesson = addWordToLesson;
-
-// Modified loadSubcategories to return promise
-async function loadSubcategories() {
-    const categoryId = document.getElementById('category-select').value;
-    const subcategoryRef = collection(db, 'categories', categoryId, 'subcategories');
-    
-    try {
-        const subcategorySnapshot = await getDocs(subcategoryRef);
-        const subcategoryList = document.getElementById('subcategory-select');
-        subcategoryList.innerHTML = '<option value="">-- Select a Subcategory --</option>';
-
-        subcategorySnapshot.forEach((doc) => {
-            const subcategory = doc.data();
-            const option = document.createElement('option');
-            option.value = subcategory.subcategory_name;
-            option.textContent = subcategory.subcategory_name;
-            subcategoryList.appendChild(option);
-        });
-    } catch (error) {
-        console.error("Error loading subcategories:", error);
-    }
-}
- 
 
 // Logout functionality
 document.getElementById('logoutButton').addEventListener('click', async (event) => {
     event.preventDefault();
     isLoggingOut = true;
-    
+
     if (currentUser) {
         const userRef = doc(db, "admins", currentUser.uid);
         await updateDoc(userRef, { isActive: false }); // Set user as inactive on logout
@@ -96,48 +57,48 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
- function toggleForm() {
-     const selectedValue = document.getElementById("form-select").value;
-     document.getElementById("category-form").style.display = selectedValue === "category" ? "block" : "none";
-     document.getElementById("lesson-form").style.display = selectedValue === "lesson" ? "block" : "none";
- }
+function toggleForm() {
+    const selectedValue = document.getElementById("form-select").value;
+    document.getElementById("category-form").style.display = selectedValue === "category" ? "block" : "none";
+    document.getElementById("lesson-form").style.display = selectedValue === "lesson" ? "block" : "none";
+}
 
- // Add event listener to load subcategories based on selected category
- document.getElementById('category-select').addEventListener('change', loadSubcategories);
+// Add event listener to load subcategories based on selected category
+document.getElementById('category-select').addEventListener('change', loadSubcategories);
 
- // Load lessons and categories on page load
- loadLessons();
- loadCategories();
+// Load lessons and categories on page load
+loadLessons();
+loadCategories();
 
- // Function to load categories
- async function loadCategories() {
-     try {
-         const categoriesRef = collection(db, 'categories');
-         const categorySnapshot = await getDocs(categoriesRef);
-         const categoryList = document.getElementById('category-select');
-         categoryList.innerHTML = '<option value="">-- Select a Category --</option>';
-
-         categorySnapshot.forEach(doc => {
-             const category = doc.data();
-             const option = document.createElement('option');
-             option.value = doc.id;
-             option.textContent = category.category_name || doc.id;
-             categoryList.appendChild(option);
-         });
-     } catch (error) {
-         console.error("Error loading categories:", error);
-     }
- }
-
- // Function to load lessonsasync function loadLessons() {
+// Function to load categories
+async function loadCategories() {
     try {
-        const querySnapshot = await getDocs(collection(db, "lessons"));
-        querySnapshot.forEach((doc) => {
-            console.log("Lesson:", doc.data());
+        const categoriesRef = collection(db, 'categories');
+        const categorySnapshot = await getDocs(categoriesRef);
+        const categoryList = document.getElementById('category-select');
+        categoryList.innerHTML = '<option value="">-- Select a Category --</option>';
+
+        categorySnapshot.forEach(doc => {
+            const category = doc.data();
+            const option = document.createElement('option');
+            option.value = doc.id;
+            option.textContent = category.category_name || doc.id;
+            categoryList.appendChild(option);
         });
     } catch (error) {
-        console.error("Error loading lessons:", error);
-    
+        console.error("Error loading categories:", error);
+    }
+}
+
+// Function to load lessonsasync function loadLessons() {
+try {
+    const querySnapshot = await getDocs(collection(db, "lessons"));
+    querySnapshot.forEach((doc) => {
+        console.log("Lesson:", doc.data());
+    });
+} catch (error) {
+    console.error("Error loading lessons:", error);
+
 }
 
 // ✅ Call this function after the page loads
@@ -145,125 +106,125 @@ window.onload = () => {
     loadLessons();
 };
 
- // Function to load lessons
- async function loadLessons() {
-     try {
-         const lessonsRef = collection(db, 'lessons');
-         const lessonSnapshot = await getDocs(lessonsRef);
-         const lessonList = document.getElementById('lesson-select');
-         lessonList.innerHTML = '<option value="">-- Select a Lesson --</option>';
+// Function to load lessons
+async function loadLessons() {
+    try {
+        const lessonsRef = collection(db, 'lessons');
+        const lessonSnapshot = await getDocs(lessonsRef);
+        const lessonList = document.getElementById('lesson-select');
+        lessonList.innerHTML = '<option value="">-- Select a Lesson --</option>';
 
-         lessonSnapshot.forEach((doc) => {
-             const lesson = doc.data();
-             const option = document.createElement('option');
-             option.value = doc.id;
-             option.textContent = `Aralin ${lesson.lesson_id}`; // Prefix with "Aralin" and add lesson_id
-             lessonList.appendChild(option);
-         });
-     } catch (error) {
-         console.error("Error loading lessons:", error);
-     }
- }
-
-
- // Function to load subcategories
- async function loadSubcategories() {
-     const categoryId = document.getElementById('category-select').value;
-     const subcategoryRef = collection(db, 'categories', categoryId, 'subcategories');
-     const subcategorySnapshot = await getDocs(subcategoryRef);
-     const subcategoryList = document.getElementById('subcategory-select');
-     subcategoryList.innerHTML = '<option value="">-- Select a Subcategory --</option>';
-
-     subcategorySnapshot.forEach((doc) => {
-         const subcategory = doc.data();
-         const option = document.createElement('option');
-         option.value = subcategory.subcategory_name; // Use subcategory_name as the value
-         option.textContent = subcategory.subcategory_name;
-         subcategoryList.appendChild(option);
-     });
- }
-
- // Add word to category (approval process for category)
- window.addWordToCategory = async function () {
-const categoryId = document.getElementById('category-select').value; // Get the selected category ID
-const subcategory_name = document.getElementById('subcategory-select').value; // Directly use subcategory_name
-const word = document.getElementById('word-category').value.trim();
-const translated = document.getElementById('translated-category').value.trim();
-const options = Array.from(document.querySelectorAll('.option-input'))
- .map((input) => input.value.trim())
- .filter((option) => option !== "");
-
-const file = document.getElementById('category-image').files[0];
-
-// Validate input fields and file
-if (!categoryId || !subcategory_name || !word || !translated || options.length < 2 || !file) {
- alert('Please fill out all fields and ensure there are at least two options and an image.');
- return;
+        lessonSnapshot.forEach((doc) => {
+            const lesson = doc.data();
+            const option = document.createElement('option');
+            option.value = doc.id;
+            option.textContent = `Aralin ${lesson.lesson_id}`; // Prefix with "Aralin" and add lesson_id
+            lessonList.appendChild(option);
+        });
+    } catch (error) {
+        console.error("Error loading lessons:", error);
+    }
 }
 
-try {
- // Fetch the category name from Firestore using its ID
- const category_name = await getCategoryName(categoryId);
 
- // Construct the storage path using category_name and subcategory_name
- const storagePath = `category_images/${category_name}/${subcategory_name}/${file.name}`;
+// Function to load subcategories
+async function loadSubcategories() {
+    const categoryId = document.getElementById('category-select').value;
+    const subcategoryRef = collection(db, 'categories', categoryId, 'subcategories');
+    const subcategorySnapshot = await getDocs(subcategoryRef);
+    const subcategoryList = document.getElementById('subcategory-select');
+    subcategoryList.innerHTML = '<option value="">-- Select a Subcategory --</option>';
 
- // Upload the image file to Firebase Storage
- const storageRef = ref(storage, storagePath);
- const uploadTask = uploadBytesResumable(storageRef, file);
-
- uploadTask.on(
-     'state_changed',
-     null,
-     (error) => {
-         console.error("Image upload failed:", error);
-         alert('Error uploading image. Please try again.');
-     },
-     async () => {
-         const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-
-         // Prepare the activity data
-         const activityData = {
-             word,
-             translated,
-             options,
-             image_path: downloadURL,
-             addedBy: currentUser.email,
-             type: 'category',
-             action: 'Added word in Category',
-             category_name,
-             subcategory_name,
-             isApprove: false,
-             timestamp: new Date()
-         };
-
-         // Add the data to the 'activities' and 'category_activities' collections
-         await addDoc(collection(db, 'activities'), activityData);
-         await addDoc(collection(db, 'category_activities'), activityData);
-
-         alert('Word added for admin approval.');
-         document.getElementById('word-category-form').reset();
-         document.getElementById('options-container-category').innerHTML = '';
-     }
- );
-} catch (error) {
- console.error("Error adding word to category: ", error);
- alert('Error adding word. Please try again.');
+    subcategorySnapshot.forEach((doc) => {
+        const subcategory = doc.data();
+        const option = document.createElement('option');
+        option.value = subcategory.subcategory_name; // Use subcategory_name as the value
+        option.textContent = subcategory.subcategory_name;
+        subcategoryList.appendChild(option);
+    });
 }
+
+// Add word to category (approval process for category)
+window.addWordToCategory = async function () {
+    const categoryId = document.getElementById('category-select').value; // Get the selected category ID
+    const subcategory_name = document.getElementById('subcategory-select').value; // Directly use subcategory_name
+    const word = document.getElementById('word-category').value.trim();
+    const translated = document.getElementById('translated-category').value.trim();
+    const options = Array.from(document.querySelectorAll('.option-input'))
+        .map((input) => input.value.trim())
+        .filter((option) => option !== "");
+
+    const file = document.getElementById('category-image').files[0];
+
+    // Validate input fields and file
+    if (!categoryId || !subcategory_name || !word || !translated || options.length < 2 || !file) {
+        alert('Please fill out all fields and ensure there are at least two options and an image.');
+        return;
+    }
+
+    try {
+        // Fetch the category name from Firestore using its ID
+        const category_name = await getCategoryName(categoryId);
+
+        // Construct the storage path using category_name and subcategory_name
+        const storagePath = `category_images/${category_name}/${subcategory_name}/${file.name}`;
+
+        // Upload the image file to Firebase Storage
+        const storageRef = ref(storage, storagePath);
+        const uploadTask = uploadBytesResumable(storageRef, file);
+
+        uploadTask.on(
+            'state_changed',
+            null,
+            (error) => {
+                console.error("Image upload failed:", error);
+                alert('Error uploading image. Please try again.');
+            },
+            async () => {
+                const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+
+                // Prepare the activity data
+                const activityData = {
+                    word,
+                    translated,
+                    options,
+                    image_path: downloadURL,
+                    addedBy: currentUser.email,
+                    type: 'category',
+                    action: 'Added word in Category',
+                    category_name,
+                    subcategory_name,
+                    isApprove: false,
+                    timestamp: new Date()
+                };
+
+                // Add the data to the 'activities' and 'category_activities' collections
+                await addDoc(collection(db, 'activities'), activityData);
+                await addDoc(collection(db, 'category_activities'), activityData);
+
+                alert('Word added for admin approval.');
+                document.getElementById('word-category-form').reset();
+                document.getElementById('options-container-category').innerHTML = '';
+            }
+        );
+    } catch (error) {
+        console.error("Error adding word to category: ", error);
+        alert('Error adding word. Please try again.');
+    }
 };
 
 // Fetch the category name using its ID
 async function getCategoryName(id) {
-try {
- const docRef = doc(db, 'categories', id); // Assuming 'categories' is the Firestore collection
- const docSnap = await getDoc(docRef);
- if (docSnap.exists()) {
-     return docSnap.data().category_name; // Ensure this matches the folder naming convention in Firebase Storage
- }
- throw new Error('Category not found');
-} catch (error) {
- console.error("Error fetching category name:", error);
-}
+    try {
+        const docRef = doc(db, 'categories', id); // Assuming 'categories' is the Firestore collection
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            return docSnap.data().category_name; // Ensure this matches the folder naming convention in Firebase Storage
+        }
+        throw new Error('Category not found');
+    } catch (error) {
+        console.error("Error fetching category name:", error);
+    }
 }
 
 
@@ -271,110 +232,110 @@ try {
 
 // Add word to lesson (approval process for lesson)
 window.addWordToLesson = async function () {
-const lessonId = document.getElementById('lesson-select').value; // Get the selected lesson ID
-const word = document.getElementById('word-lesson').value.trim();
-const translated = document.getElementById('translated-lesson').value.trim();
-const options = Array.from(document.getElementsByClassName('option-field'))
- .map(input => input.value.trim())
- .filter(value => value);
+    const lessonId = document.getElementById('lesson-select').value; // Get the selected lesson ID
+    const word = document.getElementById('word-lesson').value.trim();
+    const translated = document.getElementById('translated-lesson').value.trim();
+    const options = Array.from(document.getElementsByClassName('option-field'))
+        .map(input => input.value.trim())
+        .filter(value => value);
 
-// Validate input fields
-if (options.length < 2 || !word || !translated) {
- alert("Please complete all fields and add at least two options.");
- return;
-}
+    // Validate input fields
+    if (options.length < 2 || !word || !translated) {
+        alert("Please complete all fields and add at least two options.");
+        return;
+    }
 
-try {
- // Get the lesson number and name using the lesson ID
- const { lesson_number, lesson_name } = await getLessonData(lessonId);
+    try {
+        // Get the lesson number and name using the lesson ID
+        const { lesson_number, lesson_name } = await getLessonData(lessonId);
 
- // Create activity data object
- const activityData = {
-     word,
-     translated,
-     options,
-     addedBy: currentUser.email,
-     location: 'lesson',
-     action: 'Added word in Lesson',
-     lesson_id: lesson_number, // Store the lesson number instead of the document ID
-     lesson_name: lesson_name, // Store the lesson name
-     isApprove: false,
-     timestamp: new Date(),
- };
+        // Create activity data object
+        const activityData = {
+            word,
+            translated,
+            options,
+            addedBy: currentUser.email,
+            location: 'lesson',
+            action: 'Added word in Lesson',
+            lesson_id: lesson_number, // Store the lesson number instead of the document ID
+            lesson_name: lesson_name, // Store the lesson name
+            isApprove: false,
+            timestamp: new Date(),
+        };
 
- // Add to 'activities' collection
- await addDoc(collection(db, 'activities'), activityData);
+        // Add to 'activities' collection
+        await addDoc(collection(db, 'activities'), activityData);
 
- // Add to 'lesson_activities' collection
- await addDoc(collection(db, 'lesson_activities'), activityData);
+        // Add to 'lesson_activities' collection
+        await addDoc(collection(db, 'lesson_activities'), activityData);
 
- alert('Word added for admin approval.');
- document.getElementById('word-lesson-form').reset();
- document.getElementById('options-container-lesson').innerHTML = '';
-} catch (error) {
- console.error("Error adding word to lesson: ", error);
- alert('Error adding word. Please try again.');
-}
+        alert('Word added for admin approval.');
+        document.getElementById('word-lesson-form').reset();
+        document.getElementById('options-container-lesson').innerHTML = '';
+    } catch (error) {
+        console.error("Error adding word to lesson: ", error);
+        alert('Error adding word. Please try again.');
+    }
 };
 
 // Function to fetch lesson number and name from Firestore
 async function getLessonData(id) {
-try {
- const docRef = doc(db, 'lessons', id);
- const docSnap = await getDoc(docRef);
- if (docSnap.exists()) {
-     return {
-         lesson_number: docSnap.data().lesson_id, // Fetch lesson number
-         lesson_name: docSnap.data().lesson_name // Fetch lesson name
-     };
- }
- throw new Error('Lesson not found');
-} catch (error) {
- console.error("Error fetching lesson data:", error);
- return { lesson_number: "N/A", lesson_name: "N/A" };
+    try {
+        const docRef = doc(db, 'lessons', id);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            return {
+                lesson_number: docSnap.data().lesson_id, // Fetch lesson number
+                lesson_name: docSnap.data().lesson_name // Fetch lesson name
+            };
+        }
+        throw new Error('Lesson not found');
+    } catch (error) {
+        console.error("Error fetching lesson data:", error);
+        return { lesson_number: "N/A", lesson_name: "N/A" };
+    }
 }
-}
 
 
 
 
- // Add option field to lesson
- window.addOptionToLesson = function () {
-     const optionsContainer = document.getElementById('options-container-lesson');
-     const optionWrapper = document.createElement('div');
-     optionWrapper.className = 'option-wrapper';
+// Add option field to lesson
+window.addOptionToLesson = function () {
+    const optionsContainer = document.getElementById('options-container-lesson');
+    const optionWrapper = document.createElement('div');
+    optionWrapper.className = 'option-wrapper';
 
-     const newOption = document.createElement('input');
-     newOption.type = 'text';
-     newOption.className = 'option-field';
-     newOption.placeholder = 'Enter option';
+    const newOption = document.createElement('input');
+    newOption.type = 'text';
+    newOption.className = 'option-field';
+    newOption.placeholder = 'Enter option';
 
-     const removeIcon = document.createElement('i');
-     removeIcon.className = 'fas fa-trash';
-     removeIcon.style.cursor = 'pointer';
-     removeIcon.onclick = () => optionsContainer.removeChild(optionWrapper);
+    const removeIcon = document.createElement('i');
+    removeIcon.className = 'fas fa-trash';
+    removeIcon.style.cursor = 'pointer';
+    removeIcon.onclick = () => optionsContainer.removeChild(optionWrapper);
 
-     optionWrapper.append(newOption, removeIcon);
-     optionsContainer.appendChild(optionWrapper);
- };
+    optionWrapper.append(newOption, removeIcon);
+    optionsContainer.appendChild(optionWrapper);
+};
 
- // Add option field to category
- window.addOptionToCategory = function () {
-     const optionsContainer = document.getElementById('options-container-category');
-     const optionWrapper = document.createElement('div');
-     optionWrapper.className = 'option-wrapper';
+// Add option field to category
+window.addOptionToCategory = function () {
+    const optionsContainer = document.getElementById('options-container-category');
+    const optionWrapper = document.createElement('div');
+    optionWrapper.className = 'option-wrapper';
 
-     const newOption = document.createElement('input');
-     newOption.type = 'text';
-     newOption.className = 'option-input';
-     newOption.placeholder = 'Enter option';
+    const newOption = document.createElement('input');
+    newOption.type = 'text';
+    newOption.className = 'option-input';
+    newOption.placeholder = 'Enter option';
 
-     const removeIcon = document.createElement('i');
-     removeIcon.className = 'fas fa-trash';
-     removeIcon.style.cursor = 'pointer';
-     removeIcon.onclick = () => optionsContainer.removeChild(optionWrapper);
+    const removeIcon = document.createElement('i');
+    removeIcon.className = 'fas fa-trash';
+    removeIcon.style.cursor = 'pointer';
+    removeIcon.onclick = () => optionsContainer.removeChild(optionWrapper);
 
-     optionWrapper.append(newOption, removeIcon);
-     optionsContainer.appendChild(optionWrapper);
- };
+    optionWrapper.append(newOption, removeIcon);
+    optionsContainer.appendChild(optionWrapper);
+};
 
