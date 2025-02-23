@@ -27,6 +27,7 @@ let isLoggingOut = false;
 
 
 
+
 // Logout functionality
 document.getElementById('logoutButton').addEventListener('click', async (event) => {
     event.preventDefault();
