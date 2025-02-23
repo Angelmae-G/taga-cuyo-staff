@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="https://cdn.materialdesignicons.com/5.4.55/css/materialdesignicons.min.css">
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
+    <link rel="stylesheet" href="css/dashboard.css">    
+    <title>Staff Dashboard</title>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<section id="sidebar">
+    <a href="#" class="brand"><img src="images/logo.png" width="70px" height="70px"> TAGA-CUYO</a>
+    <ul class="side-menu">
+        <li><a href="dashboard.html" class="active"><i class='bx bxs-dashboard icon'></i> Staff Dashboard</a></li>
+        <li class="divider" data-text="IN APPLICATION">CREATE CONTENT IN APPLICATION</li>
+        <li><a href="create_content.html"><i class='bx bxs-layer icon'></i> Create Content</a></li>
+        <li class="divider" data-text="IN APPLICATION">LISTS OF CONTENT</li>
+        <li><a href="lesson.html" class=""><i class='bx bxs-book icon'></i>Lessons</a></li>
+        <li><a href="category.html" class=""><i class='bx bxs-component icon'></i>Categories</a></li>
+        <li class="divider" data-text="IN APPLICATION">OTHERS</li>
+        <li><a href="status.html" class=""><i class='bx bxs-folder icon'></i>Status</a></li>
+        <li><a href="staff_login.html" id="logoutButton"><i class='bx bxs-log-out-circle'></i> Logout</a></li>
+    </ul>
+</section>
+<!-- SIDEBAR -->
+
+<!-- NAVBAR -->
+<section id="content">
+    <nav>
+        
+        <form action="#">
+            <div class="form-group">
+            </div>
+        </form>
+        <span class="divider"></span>
+        <div id="notificationWrapper" class="notification-wrapper">
+            <i class="notification-icon">🔔</i>
+            <div id="notificationDot" class="notification-dot"></div> <!-- Removed inline style -->
+            <div id="notificationDropdown" class="dropdown"></div>
+          </div>
+             
+          </div>
+        <div class="profile">
+            <img id="navbarProfileImage" src="images/default-profile.png" alt="Profile Image">
+            <ul class="profile-link">
+               
+                <li><a href="status.html"><i class='bx bxs-cog'></i> Status</a></li>
+                <li><a href="staff_login.html"><i class='bx bxs-log-out-circle'></i> Logout</a></li>
+            </ul>
+        </div>
+        
+    </nav>
+    <!-- NAVBAR -->
+
+    <!-- MAIN -->
+    <main>
+        <!-- Message for non-authenticated users -->
+        <div id="loginMessage" style="display:none; text-align:center; padding:20px; background-color:#ffcccc;">
+            <h2>Please login to access the dashboard.</h2>
+            <a href="staff_login.html">Go to Login Page</a>
+        </div>
+
+        <!-- Dashboard content (will only show if user is logged in) -->
+        <div class="container" id="dashboardContent" style="display:none;">
+            <div class="header">
+                <div class="profile-container">
+                    <label for="profilePicUpload" class="profile-picture">
+                        <img id="profileImage" src="images/default-profile.png" alt="Profile Image">
+                    </label>
+                    <input type="file" id="profilePicUpload" accept="image/*"> <!-- Profile picture upload -->
+                    <div class="profile-details">
+                        <h1 id="staffName">Loading...</h1> <!-- Dynamic staff name -->
+                        <p id="staffEmail">Loading...</p> <!-- Dynamic staff email -->
+                        <p>Staff</p> <!-- Role -->
+                    </div>
+                
+                    <table class="activity-table" id="activityTable">
+                        <thead>
+                            <tr>
+                                <th>Activity</th>
+                                <th>Date and Time Made</th>
+                                <th>Executed by</th>
+                                
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Recent activities will be dynamically added here -->
+                        </tbody>
+                    </table>
+                    <div id="activityModal" class="modal">
+                        <div class="modal-content">
+                            <span class="close" id="modalClose">&times;</span>
+                            <h2>Activity Details</h2> 
+                            <br>
+                            <div id="activityDetails">
+                                <!-- Details will be dynamically inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </main>
+
+    <script type="module" src="scripts/dashboard/dashboard.js"></script>
+    <script type="module" src="scripts/dashboard/authentication.js"></script>
+
+</body>
+</html>

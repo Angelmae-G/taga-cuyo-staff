@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Approvals</title>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+        import { getAuth, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA_VoT0W3zD6u5GVEa24dLcMkt3DJtnqYg",
+            authDomain: "tagalog-cuyonon-mobile-app.firebaseapp.com",
+            projectId: "tagalog-cuyonon-mobile-app",
+            storageBucket: "tagalog-cuyonon-mobile-app.appspot.com",
+            messagingSenderId: "598478516019",
+            appId: "1:598478516019:web:e680422657a9ebde305846"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        async function loadRequests() {
+            const activitiesRef = collection(db, "activities");
+            const querySnapshot = await getDocs(activitiesRef);
+            const requestsTable = document.getElementById("requests");
+
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                if (data.action === "Forgot Password" && data.isApprove === false) {
+                    const row = requestsTable.insertRow();
+                    row.insertCell(0).innerText = data.actionBy;
+                    row.insertCell(1).innerText = new Date(data.timestamp.seconds * 1000).toLocaleString();
+                    const actionCell = row.insertCell(2);
+                    const approveButton = document.createElement("button");
+                    approveButton.innerText = "Approve";
+                    approveButton.onclick = () => approveRequest(doc.id, data.actionBy);
+                    actionCell.appendChild(approveButton);
+                }
+            });
+        }
+
+        async function approveRequest(docId, email) {
+            try {
+                // Update the activity in Firestore
+                const activityRef = doc(db, "activities", docId);
+                await updateDoc(activityRef, { isApprove: true });
+
+                // Send password reset email
+                await sendPasswordResetEmail(auth, email);
+                alert("Password reset email sent to " + email);
+                location.reload();
+            } catch (error) {
+                alert("Error approving request: " + error.message);
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", loadRequests);
+    </script>
+</head>
+<body>
+    <h1>Admin Password Reset Approvals</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Email</th>
+                <th>Requested At</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="requests"></tbody>
+    </table>
+</body>
+</html>

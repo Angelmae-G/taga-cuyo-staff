@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Content</title>
+    <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="https://cdn.materialdesignicons.com/5.4.55/css/materialdesignicons.min.css">
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
+    <link rel="stylesheet" href="css/create_content.css.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    </link>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script type="module" src="scripts/createcontent/createcontent.js"></script>
+    <script type="module" src="scripts/createcontent/authentication.js"></script>
+
+</head>
+
+<body>
+    <!-- SIDEBAR -->
+    <section id="sidebar">
+        <a href="dashboard.html" class="brand"><img src="images/logo.png" width="70px" height="70px"> TAGA-CUYO</a>
+        <ul class="side-menu">
+            <li><a href="dashboard.html" class=""><i class='bx bxs-dashboard icon'></i> Staff Dashboard</a></li>
+            <li class="divider" data-text="IN APPLICATION">CREATE CONTENT IN APPLICATION</li>
+            <li><a href="create_content.html" class="active"><i class='bx bxs-layer icon'></i> Create Content</a></li>
+            <li class="divider" data-text="IN APPLICATION">LISTS OF CONTENT</li>
+            <li><a href="lesson.html" class=""><i class='bx bxs-book icon'></i>Lessons</a></li>
+            <li><a href="category.html" class=""><i class='bx bxs-component icon'></i>Categories</a></li>
+            <li class="divider" data-text="IN APPLICATION">OTHERS</li>
+            <li><a href="status.html" class=""><i class='bx bxs-folder icon'></i> Status</a></li>
+            <li><a href="staff_login.html" id="logoutButton"><i class='bx bxs-log-out-circle'></i> Logout</a></li>
+
+           
+        </ul>
+    </section>
+    <section id="content">
+        <main>
+
+            <div id="myModal" class="modal">
+                <div class="modal-content">
+
+                    <h3 class="text-xl font-bold mb-4">Select Content</h3>
+                    <select id="form-select" onchange="toggleForm()"
+                        class="w-full border border-gray-300 rounded p-2 mb-4">
+                        <option value="">-- Select Content --</option>
+                        <option value="category">Category</option>
+                        <option value="lesson">Lesson</option>
+                    </select>
+                    <!-- Category Form -->
+                    <div id="category-form" style="display: block;">
+                        <h3 class="text-xl font-bold mb-4">Add Words to Category</h3>
+                        <form id="word-category-form" onsubmit="event.preventDefault(); addWordToCategory();">
+                            <div class="mb-4">
+                                <label for="category-select" class="block text-gray-700 mb-2">Select Category:</label>
+                                <select id="category-select" name="category" onchange="loadSubcategories()"
+                                    class="w-full border border-gray-300 rounded p-2">
+                                    <option value="">-- Select a Category --</option>
+                                    <!-- Categories will be loaded here -->
+                                </select>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="subcategory-select" class="block text-gray-700 mb-2">Select
+                                    Subcategory:</label>
+                                <select id="subcategory-select" name="subcategory"
+                                    class="w-full border border-gray-300 rounded p-2">
+                                    <option value="">-- Select a Subcategory --</option>
+                                    <!-- Subcategories will be loaded here -->
+                                </select>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="word-category" class="block text-gray-700 mb-2">Word:</label>
+                                <input type="text" id="word-category" name="word" required placeholder="Enter word"
+                                    class="w-full border border-gray-300 rounded p-2" />
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="translated-category" class="block text-gray-700 mb-2">Translated:</label>
+                                <input type="text" id="translated-category" name="translated" required
+                                    placeholder="Enter translated word"
+                                    class="w-full border border-gray-300 rounded p-2" />
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="category-image" class="block text-gray-700 mb-2">Image:</label>
+                                <input type="file" id="category-image" name="image" accept="image/*" required
+                                    class="border border-gray-300 rounded p-2" />
+                            </div>
+
+                            <div id="options-container-category" class="mb-4">
+                                <label class="block text-gray-700 mb-2">Options:</label>
+                                <input type="text" class="option-input w-full border border-gray-300 rounded p-2 mb-2"
+                                    id="option-1" name="options" placeholder="Enter option" required />
+                            </div>
+                            <button type="button" onclick="addOptionToCategory()"
+                                class="bg-green-500 text-white px-4 py-2 rounded mb-4">Add Option</button>
+
+                            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Submit</button>
+                        </form>
+                    </div>
+
+                    <!-- Add Word to Lesson Form -->
+                    <div id="lesson-form" style="display: none;">
+                        <h3 class="text-xl font-bold mb-4">Add Word to Lesson</h3>
+                        <form id="word-lesson-form">
+                            <div class="mb-4">
+                                <label for="lesson-select" class="block text-gray-700 mb-2">Select Lesson:</label>
+                                <select id="lesson-select" class="w-full border border-gray-300 rounded p-2">
+                                    <option value="">-- Select a Lesson --</option>
+                                    <!-- Populate this with lesson options -->
+                                </select>
+                            </div>
+                            <div class="mb-4">
+                                <label for="word-lesson" class="block text-gray-700 mb-2">Word:</label>
+                                <input type="text" id="word-lesson" placeholder="Enter word" required
+                                    class="w-full border border-gray-300 rounded p-2" />
+                            </div>
+                            <div class="mb-4">
+                                <label for="translated-lesson" class="block text-gray-700 mb-2">Translated:</label>
+                                <input type="text" id="translated-lesson" placeholder="Enter translation" required
+                                    class="w-full border border-gray-300 rounded p-2" />
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-gray-700 mb-2">Options:</label>
+                                <div id="options-container-lesson"></div>
+                                <button type="button" onclick="addOptionToLesson()"
+                                    class="bg-green-500 text-white px-4 py-2 rounded">Add Option</button>
+                            </div>
+                            <button type="button" onclick="addWordToLesson()"
+                                class="bg-blue-500 text-white px-4 py-2 rounded">Add Word</button>
+                        </form>
+                    </div>
+
+                    <script>
+                        // Define the toggleForm function at the start of your script
+                        function toggleForm() {
+                            const selectedValue = document.getElementById("form-select").value;
+                            document.getElementById("category-form").style.display = selectedValue === "category" ? "block" : "none";
+                            document.getElementById("lesson-form").style.display = selectedValue === "lesson" ? "block" : "none";
+                        }
+
+                        // Add event listener to the dropdown that triggers toggleForm
+                        document.getElementById('form-select').addEventListener('change', toggleForm);
+
+                        // The rest of your functions below...
+                        // Function to load lessons
+                        // Function to load lessons
+                        async function loadLessons() {
+                            try {
+                                const lessonsRef = collection(db, 'lessons');
+                                const lessonSnapshot = await getDocs(lessonsRef);
+                                const lessonList = document.getElementById('lesson-select');
+                                lessonList.innerHTML = '<option value="">-- Select a Lesson --</option>';
+
+                                lessonSnapshot.forEach((doc) => {
+                                    const lesson = doc.data();
+                                    console.log("Lesson data:", lesson); // Debugging: log the lesson data to check contents
+
+                                    const option = document.createElement('option');
+                                    option.value = doc.id;
+
+                                    // Check if lesson_id exists and use it; otherwise, display an error message
+                                    option.textContent = lesson.lesson_id
+                                        ? `Aralin ${lesson.lesson_id}`
+                                        : 'Lesson ID not found';
+
+                                    lessonList.appendChild(option);
+                                });
+                            } catch (error) {
+                                console.error("Error loading lessons:", error);
+                            }
+                        }
+
+                        // Call your load functions when the page loads
+                        window.onload = function () {
+                            loadLessons();
+                            loadCategories();
+                        };
+
+                        // Other functions for adding words, categories, etc.
+
+                        
+                    </script>
+
+
+
+
+</body>
+
+</html>

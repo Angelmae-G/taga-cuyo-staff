@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STAFF LOGIN</title>
+   
+    <link rel="stylesheet" href="css/login.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" crossorigin="anonymous">
+    
+    <script type="module" src="scripts/login/login.js"></script>
+</head>
+<body>
+    <div class="container flex-r">
+        <div class="login-wrapper flex-r">
+            <div class="login-text">
+                <div class="logo">
+                    <img id="logo" src="images/logo.png" alt="Logo" />
+                </div>
+                <h1>STAFF OF TAGA-CUYO LOGIN</h1>
+                <form class="flex-c" id="loginForm" method="POST">
+                    <div class="input-box">
+                        <label class="label" for="email">E-mail</label>
+                        <div class="flex-r input">
+                            <input type="email" id="email" placeholder="name@email.com" required>
+                            <i class="fas fa-at"></i>
+                        </div>
+                    </div>
+
+                    <div class="input-box">
+                        <label class="label" for="password">Password</label>
+                        <div class="flex-r input">
+                            <input type="password" id="password" placeholder="password" required>
+                            <i class="fas fa-lock"></i>
+                        </div>
+                    </div>
+
+                    <div class="input-box">
+                        <a id="forgot-password-link" href="#">Request New Password</a>
+                    </div>
+
+                    <div class="check">
+                        <input type="checkbox" id="terms" required>
+                        <label for="terms">I've read and agree with <a href="terms_and_condition.html">T&C</a></label>
+                    </div>
+
+                    <input class="btn" type="submit" value="Login">
+                </form>
+
+                <div id="error-message" style="color: red;"></div>
+            </div>
+        </div>
+    </div>
+    <div id="forgot-password-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>Forgot Password</h2>
+            <form id="forgot-password-form">
+                <label for="forgot-email">Enter your email:</label>
+                <input type="email" id="forgot-email" placeholder="name@email.com" required>
+                <button type="submit" class="btn">Request Password Reset</button>
+            </form>
+            <button id="close-modal" class="btn">Close</button>
+        </div>
+    </div>
+</body>
+</html>

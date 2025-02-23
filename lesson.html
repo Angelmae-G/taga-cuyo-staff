@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.materialdesignicons.com/5.4.55/css/materialdesignicons.min.css">
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
+    <link rel="stylesheet" href="css/lesson.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Lessons</title>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<section id="sidebar">
+    <a href="#" class="brand"><img src="images/logo.png" width="70px" height="70px"> TAGA-CUYO</a>
+    <ul class="side-menu">
+        <li><a href="dashboard.html"><i class='bx bxs-dashboard icon'></i> Staff Dashboard</a></li>
+        <li class="divider" data-text="IN APPLICATION">CREATE CONTENT IN APPLICATION</li>
+        <li><a href="create_content.html"><i class='bx bxs-layer icon'></i> Create Content</a></li>
+        <li class="divider" data-text="IN APPLICATION">LISTS OF CONTENT</li>
+        <li><a href="lesson.html" class="active"><i class='bx bxs-book icon'></i>Lessons</a></li>
+        <li><a href="category.html"><i class='bx bxs-component icon'></i>Categories</a></li>
+        <li class="divider" data-text="IN APPLICATION">OTHERS</li>
+        <li><a href="status.html" class=""><i class='bx bxs-folder icon'></i>Status</a></li>
+        <li><a href="staff_login.html" id="logoutButton"><i class='bx bxs-log-out-circle'></i> Logout</a></li>
+    </ul>
+</section>
+
+<!-- CONTENT -->
+<section id="content">
+    
+    <nav>
+        <h2>List of Lessons</h2>
+        <span class="divider"></span>
+        <form action="#">
+            <div class="form-group">
+            </div>
+        </form>
+        <div class="notification-wrapper" id="notificationWrapper">
+            <span class="notification-icon">🔔</span>
+            <span class="notification-dot" id="notificationDot"></span>
+            <div class="dropdown" id="notificationDropdown">
+              <p>No new notifications</p>
+            </div>
+            
+    </nav>
+
+    
+
+    <main>
+        <div id="loginMessage" style="display:none; text-align:center; padding:20px; background-color:#ffcccc;">
+            <h2>Please login to access the List of Contents.</h2>
+            <a href="staff_login.html">Go to Login Page</a>
+        </div>
+        
+        <div id="dashboardContent" style="display:none;">
+            <label for="lessonSelect">Select Lesson:</label>
+            <select id="lessonSelect" onchange="fetchWords(this.value)">
+                <option value="">Select a lesson</option>
+            </select>
+            <table>
+                <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>Word</th>
+                        <th>Translated</th>
+                        <th>Options</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="wordsTableBody">
+                    <!-- Table rows will be populated here -->
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script type="module" src="scripts/lesson/lesson.js"></script>
+    <script type="module" src="scripts/lesson/authentication.js"></script>
+    <p id="user-email"></p>
+    <p id="user-role"></p>
+    
+    
+
+</body>
+</html>
