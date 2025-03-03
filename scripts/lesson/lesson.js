@@ -103,157 +103,154 @@ window.fetchWords = async function (lessonId) {
 
 
 async function handleEdit(event) {
-const row = event.target.closest('tr');
-const wordCell = row.querySelector('td:nth-child(2)');
-const translatedCell = row.querySelector('td:nth-child(3)');
-const optionCells = row.querySelectorAll('ul li');
-const editIcon = event.target.closest('.edit')?.querySelector('i');
+    const row = event.target.closest('tr');
+    const wordCell = row.querySelector('td:nth-child(2)');
+    const translatedCell = row.querySelector('td:nth-child(3)');
+    const optionCells = row.querySelectorAll('ul li');
+    const editIcon = event.target.closest('.edit')?.querySelector('i');
 
-if (!editIcon) {
-console.error("Edit icon not found.");
-return; 
-}
-
-const isEditing = wordCell.contentEditable === 'true';
-const docId = event.target.closest('.edit').getAttribute('data-id');
-const lessonId = document.getElementById('lessonSelect').value;
-
-if (isEditing) {
-const updatedWord = wordCell.innerText.trim();
-const updatedTranslation = translatedCell.innerText.trim();
-const updatedOptions = Array.from(optionCells).map(option => option.innerText.trim());
-
-console.log({ updatedWord, updatedTranslation, updatedOptions });
-
-try {
-    // Fetch lesson details (both ID and Name)
-    const lessonDoc = await getDoc(doc(firestore, 'lessons', lessonId));
-    if (!lessonDoc.exists()) {
-        throw new Error("Lesson not found");
+    if (!editIcon) {
+        console.error("Edit icon not found.");
+        return; 
     }
 
-    const lessonData = lessonDoc.data();
-    const lessonName = lessonData.lesson_name; // Fetch lesson name
-    const lessonNumber = lessonData.lesson_id; // Fetch lesson number
+    const isEditing = wordCell.contentEditable === 'true';
+    const docId = event.target.closest('.edit').getAttribute('data-id');
+    const lessonId = document.getElementById('lessonSelect').value;
 
-    // Log the edit to activities collection with lesson_id and lesson_name
-    await logActivity(
-        'Edited word in Lesson',
-        currentUserEmail,
-        lessonNumber,   // lesson_id (number)
-        lessonName,     // lesson_name (string)
-        wordCell.dataset.originalWord,
-        updatedWord,
-        updatedOptions,
-        updatedTranslation,
-        'lessons',
-        true
-    );
+    if (isEditing) {
+        // Collect updated values
+        const updatedWord = wordCell.innerText.trim();
+        const updatedTranslation = translatedCell.innerText.trim();
+        const updatedOptions = Array.from(optionCells).map(option => option.innerText.trim());
 
-    // Update Firestore with the new word, translation, and options
-    await updateDoc(doc(firestore, 'lessons', lessonId, 'words', docId), {
-        word: updatedWord,
-        translated: updatedTranslation,
-        options: updatedOptions
-    });
+        console.log({ updatedWord, updatedTranslation, updatedOptions });
 
-    alert('Word edited successfully.');
-} catch (error) {
-    console.error('Error updating document:', error);
-    alert('Error updating word. Please try again.');
-}
-} else {
-wordCell.contentEditable = 'true';
-translatedCell.contentEditable = 'true';
-optionCells.forEach(option => option.contentEditable = 'true');
-editIcon.classList.replace('bxs-pencil', 'bxs-check-circle'); 
-}
+        try {
+            // Fetch lesson details (ID and Name)
+            const lessonDoc = await getDoc(doc(firestore, 'lessons', lessonId));
+            if (!lessonDoc.exists()) {
+                throw new Error("Lesson not found");
+            }
 
-wordCell.contentEditable = !isEditing;
-translatedCell.contentEditable = !isEditing;0-[]
-optionCells.forEach(option => option.contentEditable = !isEditing);
-editIcon.classList.toggle('bxs-pencil', isEditing);
-editIcon.classList.toggle('bxs-check-circle', !isEditing);
-}
+            const lessonData = lessonDoc.data();
+            const lessonName = lessonData.lesson_name; // Lesson name
+            const lessonNumber = lessonData.lesson_id; // Lesson ID (number)
 
-// Log activity with lesson_id and lesson_name
-async function logActivity(action, addedBy, lesson_id, lesson_name, oldWord, word, options, translated, type, isApprove = true) {
-const activityRef = doc(collection(firestore, 'activities')); // Use auto-generated IDs
-await setDoc(activityRef, {
-action: action,
-addedBy: addedBy,
-lesson_id: lesson_id, // Use lesson_id (number)
-oldWord: oldWord || null,
-word: word || null,
-exactLocation: `${type}/${lesson_name}/words/${word || oldWord}`, // Use lesson_name instead of ID
-lesson_name: lesson_name, // Set location to lesson_name
-options: options || null,
-translated: translated || null,
-timestamp: serverTimestamp(),
-isApprove: isApprove  // Set isApprove to true by default
-});
+            // Construct activity log data
+            const activityData = {
+                action: 'Edited word in Lesson',
+                addedBy: currentUserEmail,
+                lesson_id: lessonNumber,  // Use lesson_id (number)
+                oldWord: wordCell.dataset.originalWord,
+                word: updatedWord,
+                exactLocation: `lessons/${lessonName}/words/${updatedWord || wordCell.dataset.originalWord}`,
+                lesson_name: lessonName,
+                options: updatedOptions,
+                translated: updatedTranslation,
+                timestamp: serverTimestamp(),
+                isApprove: true
+            };
+
+            // Perform Firestore updates in parallel
+            await Promise.all([
+                updateDoc(doc(firestore, 'lessons', lessonId, 'words', docId), {
+                    word: updatedWord,
+                    translated: updatedTranslation,
+                    options: updatedOptions
+                }),
+                setDoc(doc(collection(firestore, 'activities')), activityData),
+                setDoc(doc(collection(firestore, 'lesson_activities')), activityData)
+            ]);
+
+            alert('Word edited successfully.');
+        } catch (error) {
+            console.error('Error updating document:', error);
+            alert('Error updating word. Please try again.');
+        }
+    } else {
+        // Enable editing
+        wordCell.contentEditable = 'true';
+        translatedCell.contentEditable = 'true';
+        optionCells.forEach(option => option.contentEditable = 'true');
+        editIcon.classList.replace('bxs-pencil', 'bxs-check-circle'); 
+    }
+
+    // Toggle edit mode
+    wordCell.contentEditable = !isEditing;
+    translatedCell.contentEditable = !isEditing;
+    optionCells.forEach(option => option.contentEditable = !isEditing);
+    editIcon.classList.toggle('bxs-pencil', isEditing);
+    editIcon.classList.toggle('bxs-check-circle', !isEditing);
 }
 
 
 
 
 async function handleDelete(event) {
-const row = event.target.closest('tr');
-const wordCell = row.querySelector('td:nth-child(2)');
-const translatedCell = row.querySelector('td:nth-child(3)');
-const docId = row.querySelector('.delete')?.getAttribute('data-id'); // Ensure delete button has 'data-id'
-const lessonId = document.getElementById('lessonSelect').value;
+    const row = event.target.closest('tr');
+    const wordCell = row.querySelector('td:nth-child(2)');
+    const translatedCell = row.querySelector('td:nth-child(3)');
+    const docId = row.querySelector('.delete')?.getAttribute('data-id'); // Ensure delete button has 'data-id'
+    const lessonId = document.getElementById('lessonSelect').value;
 
-if (confirm('Are you sure you want to delete this word? This action will require admin approval.')) {
-try {
-    const word = wordCell ? wordCell.dataset.originalWord : null; // Ensure word is retrieved correctly
-    const translated = translatedCell ? translatedCell.innerText.trim() : ''; // Retrieve translated word
+    if (confirm('Are you sure you want to delete this word? This action will require admin approval.')) {
+        try {
+            const word = wordCell ? wordCell.dataset.originalWord : null; // Ensure word is retrieved correctly
+            const translated = translatedCell ? translatedCell.innerText.trim() : ''; // Retrieve translated word
 
-    if (!word) {
-        alert('Word data not found.');
-        return;
+            if (!word) {
+                alert('Word data not found.');
+                return;
+            }
+
+            // Fetch lesson details
+            const lessonDoc = await getDoc(doc(firestore, 'lessons', lessonId));
+            if (!lessonDoc.exists()) {
+                throw new Error("Lesson not found");
+            }
+
+            const lessonData = lessonDoc.data();
+            const lessonName = lessonData.lesson_name; // Fetch lesson name
+            const lessonNumber = lessonData.lesson_id; // Fetch lesson ID
+
+            // Fetch the word document to get options
+            const wordDoc = await getDoc(doc(firestore, 'lessons', lessonId, 'words', docId));
+            let wordOptions = []; // Default empty array if no options found
+
+            if (wordDoc.exists()) {
+                wordOptions = wordDoc.data().options || []; // Assuming options is an array stored in the word document
+            }
+
+            // Construct activity log data
+            const activityData = {
+                action: 'Deleted word from Lesson',
+                addedBy: currentUserEmail,
+                timestamp: serverTimestamp(),
+                word: word,
+                translated: translated,  
+                lesson_id: lessonNumber, // Store lesson_id
+                isApprove: false, // Mark as pending approval
+                exactLocation: `lessons/${lessonName}/words/${word}`, // Use lesson_name instead of lessonId
+                lesson_name: lessonName, // Store lesson name instead of lesson_id
+                options: wordOptions // Include options as an array of strings
+            };
+
+            // Log deletion request in both `activities` and `lesson_activities`
+            await Promise.all([
+                addDoc(collection(firestore, 'activities'), activityData),
+                addDoc(collection(firestore, 'lesson_activities'), activityData)
+            ]);
+
+            alert('Deletion request submitted successfully. Waiting for admin approval.');
+            fetchWords(lessonId); // Refresh the word list
+        } catch (error) {
+            console.error('Error deleting word:', error);
+            alert('Error submitting deletion request. Please try again.');
+        }
     }
-
-    // Fetch lesson details
-    const lessonDoc = await getDoc(doc(firestore, 'lessons', lessonId));
-    if (!lessonDoc.exists()) {
-        throw new Error("Lesson not found");
-    }
-
-    const lessonData = lessonDoc.data();
-    const lessonName = lessonData.lesson_name; // Fetch lesson name
-    const lessonNumber = lessonData.lesson_id; // Fetch lesson ID
-
-    // Assume options are an array stored in the word document (example structure)
-    const wordDoc = await getDoc(doc(firestore, 'lessons', lessonId, 'words', word)); // Adjust path if necessary
-    let wordOptions = []; // Default empty array if no options found
-
-    if (wordDoc.exists()) {
-        wordOptions = wordDoc.data().options || []; // Assuming options is an array stored in the word document
-    }
-
-    // Log the deletion in the 'activities' collection with isApprove: false (pending approval)
-    await addDoc(collection(firestore, 'activities'), {
-        action: 'Deleted word from Lesson',
-        addedBy: currentUserEmail,
-        timestamp: serverTimestamp(),
-        word: word,
-        translated: translated,  // Add the translated field
-        lesson_id: lessonNumber, // Store lesson_id
-        isApprove: false, // Mark as pending approval
-        exactLocation: `lessons/${lessonName}/words/${word}`, // Use lesson_name instead of lessonId
-        lesson_name: lessonName, // Store lesson name instead of lesson_id
-        options: wordOptions // Include options as an array of strings
-    });
-
-    alert('Deletion request submitted successfully. Waiting for admin approval.');
-    fetchWords(lessonId); // Refresh the word list
-} catch (error) {
-    console.error('Error deleting word:', error);
-    alert('Error submitting deletion request. Please try again.');
 }
-}
-}
+
 
 
 function listenForNotifications() {

@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="css/dashboard.css">    
     <title>Staff Dashboard</title>
 </head>
+
 <body>
 
 <!-- SIDEBAR -->
@@ -37,11 +38,12 @@
             </div>
         </form>
         <span class="divider"></span>
-        <div id="notificationWrapper" class="notification-wrapper">
-            <i class="notification-icon">🔔</i>
-            <div id="notificationDot" class="notification-dot"></div> <!-- Removed inline style -->
-            <div id="notificationDropdown" class="dropdown"></div>
-          </div>
+        <div class="notification-wrapper" id="notificationWrapper">
+            <span class="notification-icon">🔔</span>
+            <span class="notification-dot" id="notificationDot"></span>
+            <div class="dropdown" id="notificationDropdown">
+              <p>No new notifications</p>
+            </div>
              
           </div>
         <div class="profile">
@@ -107,8 +109,10 @@
         
     </main>
 
+
+    <script type="module" src="scripts/"></script>
     <script type="module" src="scripts/dashboard/dashboard.js"></script>
-    <script type="module" src="scripts/dashboard/authentication.js"></script>
+    <script type="module" src="scripts/authentication.js"></script>
 
 </body>
 </html>

@@ -1,12 +1,14 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js';
 import { getFirestore, collection, getDocs, doc, deleteDoc, updateDoc, addDoc, getDoc, serverTimestamp, onSnapshot } from 'https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js';
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js"; 
+import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-storage.js";
+
 
 const firebaseConfig = {
     apiKey: "AIzaSyAqr7jav_7l0Y7gIhfTklJXnHPzjAYV8f4",
     authDomain: "taga-cuyo-app.firebaseapp.com",
     projectId: "taga-cuyo-app",
-    storageBucket: "taga-cuyo-app.appspot.com",  // ✅ Fixed storage bucket
+    storageBucket: "taga-cuyo-app.firebasestorage.app",  // ✅ Fixed storage bucket
     messagingSenderId: "908851804845",
     appId: "1:908851804845:web:dff839dc552a573a23a424",
     measurementId: "G-NVSY2HPNX4"
@@ -16,9 +18,21 @@ const app = initializeApp(firebaseConfig);
 const firestore = getFirestore(app);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage();
+getDownloadURL(ref(storage, 'category_images/example.jpg'))
+  .then((url) => {
+    imgElement.src = url;
+  })
+  .catch((error) => {
+    console.error("Error fetching image URL:", error);
+  });
+const storageBucket = "taga-cuyo-app.firebasestorage.app"; 
+console.log(storageBucket);
 
+  
 let isLoggingOut = false;
 let currentUserEmail; 
+
 
 // Logout functionality
 document.getElementById('logoutButton').addEventListener('click', async (event) => {
@@ -135,106 +149,131 @@ snapshot.forEach(doc => {
 // Convert Firebase Storage GS path to public URL
 const getImageUrl = async (imagePath) => {
     if (!imagePath || typeof imagePath !== "string") {
-        console.warn("⚠️ Invalid or missing image path, using placeholder.");
-        return 'images/placeholder.png'; // Default placeholder
+      console.warn("⚠️ Invalid or missing image path, using placeholder.");
+      return 'category_images/example.jpg'; // Ensure this file exists in your project
     }
-
-    // Remove unwanted spaces and characters
-    imagePath = imagePath.trim().replace(/\s+/g, ""); 
-
-    console.log("🖼 Fetching image for path:", imagePath);
-
-    // If already a full URL, return as is
+  
+    // Log original image path for debugging
+    console.log("Original image path:", imagePath);
+  
+    // Trim whitespace from the beginning and end (do not remove internal spaces)
+    imagePath = imagePath.trim();
+  
+    console.log("Cleaned image path:", imagePath);
+  
+    // If it's already a full URL, return it directly
     if (imagePath.startsWith("http")) {
-        return imagePath;
+      return imagePath;
     }
-
-    // Ensure correct Firebase Storage bucket name
-    const storageBucket = "taga-cuyo-app.appspot.com"; 
-
-    // Handle Firebase GS URL
+  
+    // Use the bucket name from firebaseConfig for consistency
+    const storageBucket = firebaseConfig.storageBucket; // "taga-cuyo-app.firebasestorage.app"
+  
+    // Handle GS URLs (e.g., "gs://taga-cuyo-app.firebasestorage.app/category_images/...")
     if (imagePath.startsWith("gs://")) {
-        const pathWithoutGs = imagePath.replace(`gs://${storageBucket}/`, "");
-        return `https://firebasestorage.googleapis.com/v0/b/${storageBucket}/o/${encodeURIComponent(pathWithoutGs)}?alt=media`;
+      // Remove the "gs://" prefix and bucket name
+      const pathWithoutGs = imagePath.replace(`gs://${storageBucket}/`, "");
+      return `https://firebasestorage.googleapis.com/v0/b/${storageBucket}/o/${encodeURIComponent(pathWithoutGs)}?alt=media`;
     }
-
-    // Handle relative paths stored in Firestore
+  
+    // Otherwise, assume it's a relative path stored in Firestore
     return `https://firebasestorage.googleapis.com/v0/b/${storageBucket}/o/${encodeURIComponent(imagePath)}?alt=media`;
-};
+  };
+  
 
 
 
 // Edit word entry
 async function handleEdit(event) {
-const editLink = event.target.closest('.edit');
-const row = editLink.closest('tr');
-const wordCell = row.querySelector('td:nth-child(2)');
-const translatedCell = row.querySelector('td:nth-child(3)');
-const optionsCells = Array.from(row.querySelectorAll('.option'));
-const word_id = editLink.dataset.id;  // Updated to word_id
-const category_name = document.getElementById('categorySelect').value;  // Updated to category_name
-const subcategory_name = document.getElementById('subcategorySelect').value;  // Updated to subcategory_name
-const isCategoryPage = window.location.pathname.includes("category.html");
+    const editLink = event.target.closest('.edit');
+    const row = editLink.closest('tr');
+    const wordCell = row.querySelector('td:nth-child(2)');
+    const translatedCell = row.querySelector('td:nth-child(3)');
+    const optionsCells = Array.from(row.querySelectorAll('.option'));
+    const word_id = editLink.dataset.id;
+    const category_name = document.getElementById('categorySelect').value;
+    const subcategory_name = document.getElementById('subcategorySelect').value;
+    const isCategoryPage = window.location.pathname.includes("category.html");
 
-if (!category_name || !subcategory_name || !word_id) {
-alert("Missing identifiers. Please ensure all fields are selected.");
-return;
+    if (!category_name || !subcategory_name || !word_id) {
+        alert("Missing identifiers. Please ensure all fields are selected.");
+        return;
+    }
+
+    if (wordCell.contentEditable === "true") {
+        // Collect updated data
+        const updatedWord = wordCell.innerText.trim();
+        const updatedTranslation = translatedCell.innerText.trim();
+        const updatedOptions = optionsCells.map(opt => opt.innerText.trim());
+
+        if (!updatedWord || !updatedTranslation || updatedOptions.some(opt => !opt)) {
+            alert("Please fill in all fields.");
+            return;
+        }
+
+        try {
+            // Get existing word data to retain `image_path`
+            const wordRef = doc(firestore, 'categories', category_name, 'subcategories', subcategory_name, 'words', word_id);
+            const wordDoc = await getDoc(wordRef);
+
+            if (!wordDoc.exists()) {
+                throw new Error("Word not found.");
+            }
+
+            const wordData = wordDoc.data();
+            const imagePath = wordData.image_path || ''; // Retain existing image path
+
+            // Update word details in Firestore
+            await updateDoc(wordRef, {
+                word: updatedWord,
+                translated: updatedTranslation,
+                options: updatedOptions,
+                image_path: imagePath // Ensure image path is retained
+            });
+
+            // Log the edit to the activities collection
+            const activityData = {
+                action: 'Edited word in Category',
+                addedBy: currentUserEmail,
+                timestamp: serverTimestamp(),
+                location: isCategoryPage ? 'category' : 'lesson',
+                category_name,
+                subcategory_name,
+                oldWord: wordCell.dataset.originalWord,
+                word: updatedWord,
+                options: updatedOptions,
+                translated: updatedTranslation,
+                image_path: imagePath, // Add image path to logs
+                isApprove: true,
+                exactLocation: `categories/${category_name}/subcategories/${subcategory_name}/words/${word_id}`
+            };
+
+            // Save activity in both collections
+            const activityRef = collection(firestore, 'activities');
+            await addDoc(activityRef, activityData);
+
+            const categoryActivityRef = collection(firestore, 'category_activities');
+            await addDoc(categoryActivityRef, activityData);
+
+            alert('Word updated successfully!');
+            fetchWords(subcategory_name);  // Refresh the table to show current data
+
+        } catch (error) {
+            console.error("Error updating word:", error);
+            alert("Failed to update word. Please try again.");
+        }
+
+    } else {
+        // Enable editing mode
+        wordCell.contentEditable = "true";
+        translatedCell.contentEditable = "true";
+        optionsCells.forEach(opt => opt.contentEditable = "true");
+        editLink.innerHTML = `<i class='bx bxs-check-circle'></i>`;
+        wordCell.dataset.originalWord = wordCell.innerText;
+    }
 }
 
-if (wordCell.contentEditable === "true") {
-// Collect updated data
-const updatedWord = wordCell.innerText.trim();
-const updatedTranslation = translatedCell.innerText.trim();
-const updatedOptions = optionsCells.map(opt => opt.innerText.trim());
 
-if (!updatedWord || !updatedTranslation || updatedOptions.some(opt => !opt)) {
-    alert("Please fill in all fields.");
-    return;
-}
-
-try {
-    // Update word details in Firestore
-    const wordRef = doc(firestore, 'categories', category_name, 'subcategories', subcategory_name, 'words', word_id);  // Updated to category_name
-    await updateDoc(wordRef, {
-        word: updatedWord,
-        translated: updatedTranslation,
-        options: updatedOptions
-    });
-
-    // Log the edit to the activities collection
-    const activityRef = collection(firestore, 'activities');
-    await addDoc(activityRef, {
-        action: 'Edited word in Category',
-        addedBy: currentUserEmail,
-        timestamp: serverTimestamp(),
-        location: isCategoryPage ? 'category' : 'lesson',
-        category_name,  // Updated to category_name
-        subcategory_name,  // Updated to subcategory_name
-        oldWord: wordCell.dataset.originalWord,
-        word: updatedWord,
-        options: updatedOptions,
-        translated: updatedTranslation,
-        isApprove: true,
-        exactLocation: `categories/${category_name}/subcategories/${subcategory_name}/words/${word_id}`  // Updated to category_name
-    });
-
-    alert('Word updated successfully!');
-    fetchWords(subcategory_name);  // Refresh the table to show current data
-
-} catch (error) {
-    console.error("Error updating word:", error);
-    alert("Failed to update word. Please try again.");
-}
-
-} else {
-// Enable editing mode
-wordCell.contentEditable = "true";
-translatedCell.contentEditable = "true";
-optionsCells.forEach(opt => opt.contentEditable = "true");
-editLink.innerHTML = `<i class='bx bxs-check-circle'></i>`;
-wordCell.dataset.originalWord = wordCell.innerText;
-}
-}
 
 // Deletion and logging functions should also use consistent naming for category_name, subcategory_name, etc.
 
@@ -248,78 +287,90 @@ wordCell.dataset.originalWord = wordCell.innerText;
 
 
 async function handleDelete(event) {
-const deleteLink = event.target.closest('.delete');
-const wordId = deleteLink.dataset.id;
-const category_name = document.getElementById('categorySelect').value;  // Using category_name
-const subcategory_name = document.getElementById('subcategorySelect').value;  // Using subcategory_name
-const isCategoryPage = window.location.pathname.includes("category.html");
+    const deleteLink = event.target.closest('.delete');
+    const wordId = deleteLink.dataset.id;
+    const category_name = document.getElementById('categorySelect').value;  // Using category_name
+    const subcategory_name = document.getElementById('subcategorySelect').value;  // Using subcategory_name
+    const isCategoryPage = window.location.pathname.includes("category.html");
 
-if (confirm("Are you sure you want to delete this word? This action will require admin approval.")) {
-try {
-    // Get word data for logging
-    const wordDoc = await getDoc(doc(firestore, 'categories', category_name, 'subcategories', subcategory_name, 'words', wordId));
-    const wordData = wordDoc.data(); 
+    if (confirm("Are you sure you want to delete this word? This action will require admin approval.")) {
+        try {
+            // Get word data for logging
+            const wordDoc = await getDoc(doc(firestore, 'categories', category_name, 'subcategories', subcategory_name, 'words', wordId));
+            
+            if (!wordDoc.exists()) {
+                throw new Error("Word not found.");
+            }
 
-    // Retrieve the translated word (assuming it's in the wordData object)
-    const translated = wordData.translated;  // Assuming the word data contains a 'translated' field
-    const word = wordData.word;  // Assuming the word is also in wordData
-    const options = wordData.options || [];  // Assuming options is an array
-    const imagePath = wordData.image_path || '';  // Assuming the image path is in wordData
+            const wordData = wordDoc.data(); 
 
-    // Log the deletion request to 'activities' collection with isApproved: false (pending approval)
-    await addDoc(collection(firestore, 'activities'), {
-        action: 'Deleted word from Category',
-        word: word,  // Ensure 'word' is included
-        category_name: category_name,  // Use category_name instead of categoryId
-        subcategory_name: subcategory_name,  // Use subcategory_name instead of subcategoryId
-        addedBy: currentUserEmail,
-        timestamp: serverTimestamp(),
-        location: 'category',
-        image_path: imagePath,  // Include the image path if available
-        options: options,  // Use the options array here
-        translated: translated,  // Use the correct translated value
-        isApprove: false,  // Pending approval
-        type: isCategoryPage ? 'category' : 'lesson',  // Adjust based on the context
-        exactLocation: `categories/${category_name}/subcategories/${subcategory_name}/words/${wordId}`,  // Use category_name and subcategory_name
-    });
+            // Retrieve relevant fields
+            const translated = wordData.translated || '';  
+            const word = wordData.word || '';  
+            const options = wordData.options || [];  
+            const imagePath = wordData.image_path || '';  
 
-    alert('Deletion request has been submitted for admin approval.');
-    fetchWords(subcategory_name);  // Refresh the words list
-} catch (error) {
-    console.error('Error logging deletion request:', error);
-    alert('Error submitting deletion request. Please try again.');
-}
-}
+            // Construct activity log data
+            const activityData = {
+                action: 'Deleted word from Category',
+                word: word,  
+                category_name: category_name,  
+                subcategory_name: subcategory_name,  
+                addedBy: currentUserEmail,
+                timestamp: serverTimestamp(),
+                location: 'category',
+                image_path: imagePath,  
+                options: options,  
+                translated: translated,  
+                isApprove: false,  
+                type: isCategoryPage ? 'category' : 'lesson',  
+                exactLocation: `categories/${category_name}/subcategories/${subcategory_name}/words/${wordId}`,  
+            };
+
+            // Log deletion request in both `activities` and `category_activities`
+            await Promise.all([
+                addDoc(collection(firestore, 'activities'), activityData),
+                addDoc(collection(firestore, 'category_activities'), activityData)
+            ]);
+
+            alert('Deletion request has been submitted for admin approval.');
+            fetchWords(subcategory_name);  // Refresh the words list
+        } catch (error) {
+            console.error('Error logging deletion request:', error);
+            alert('Error submitting deletion request. Please try again.');
+        }
+    }
 }
 
 async function logActivity(actionType, addedBy, details) {
-const activityRef = collection(firestore, 'activities');
+    const activityRef = collection(firestore, 'activities');
 
-// Prepare the base activity object
-const activityData = {
-action: actionType,
-addedBy: addedBy,
-timestamp: serverTimestamp(), // Ensure serverTimestamp is imported from Firebase
-location: details.type,
-};
+    // Prepare the base activity object
+    const activityData = {
+        action: actionType,
+        addedBy: addedBy,
+        timestamp: serverTimestamp(), // Ensure serverTimestamp is imported from Firebase
+        location: details.type,
+    };
 
-// Add specific fields based on action type
-if (actionType.includes('Edited')) {
-// Log activity details for edits
-activityData.oldWord = details.oldWord || null;
-activityData.newWord = details.newWord || null;
-activityData.exactLocation = `categories/${details.category_name}/subcategories/${details.subcategory_name}/words/${details.newWord || details.oldWord}`;  // Use category_name and subcategory_name
-activityData.options = details.options || null;
-activityData.translated = details.translated || null;
-} else if (actionType.includes('Deleted')) {
-// Log activity details for deletions
-activityData.word = details.word; // Log the word that was deleted
-activityData.exactLocation = `categories/${details.category_name}/subcategories/${details.subcategory_name}/words/${details.word}`;  // Use category_name and subcategory_name
+    // Add specific fields based on action type
+    if (actionType.includes('Edited')) {
+        // Log activity details for edits
+        activityData.oldWord = details.oldWord || null;
+        activityData.newWord = details.newWord || null;
+        activityData.exactLocation = `categories/${details.category_name}/subcategories/${details.subcategory_name}/words/${details.newWord || details.oldWord}`;
+        activityData.options = details.options || null;
+        activityData.translated = details.translated || null;
+    } else if (actionType.includes('Deleted')) {
+        // Log activity details for deletions
+        activityData.word = details.word; // Log the word that was deleted
+        activityData.exactLocation = `categories/${details.category_name}/subcategories/${details.subcategory_name}/words/${details.word}`;
+    }
+
+    // Add the document to Firestore
+    await addDoc(activityRef, activityData);
 }
 
-// Add the document to Firestore
-await addDoc(activityRef, activityData);
-}
 
 
 
@@ -346,7 +397,7 @@ function openImageModal(src) {
     const modal = document.getElementById("imageModal");
     const modalImg = document.getElementById("modalImage");
     modal.style.display = "block";
-    modalImg.src = src || 'images/placeholder.png';
+    modalImg.src = src || 'category_images/example.jpg';
 }
 
 function closeModal() {

@@ -11,6 +11,7 @@
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
     justify-content: center; /* Center horizontally */
     align-items: center;     /* Center vertically */
 }
@@ -21,42 +22,41 @@
     max-height: 80vh; /* Fit within viewport height */
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    position: relative; /* Ensures buttons are positioned relative to the image */
 }
 
 /* Close button style */
-.close {
+.close, .back-button {
     position: absolute;
     top: 10px;
-    right: 10px;
-    color: #fff;
-    font-size: 25px;
-    font-weight: bold;
-    cursor: pointer;
-    background-color: rgba(0, 0, 0, 0.6);
-    padding: 5px;
-    border-radius: 50%;
-    z-index: 11;
-}
-
-.close:hover {
-    background-color: rgba(255, 0, 0, 0.8);
-    color: #fff;
-}
-.back-button {
-    margin-top: 10px; /* Space from the image */
-    padding: 10px 15px;
+    padding: 5px 10px;
     font-size: 16px;
     color: #fff;
-    background-color: #007bff; /* Bootstrap primary color */
+    background-color: rgba(0, 0, 0, 0.6);
     border: none;
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s;
+    z-index: 11;
+}
+
+.close {
+    right: 10px; /* Close button at top-right */
+}
+
+.close:hover {
+    background-color: rgba(255, 0, 0, 0.8);
+}
+
+.back-button {
+    left: 10px; /* Back button at top-left */
+    background-color: #007bff;
 }
 
 .back-button:hover {
-    background-color: #0056b3; /* Darker shade on hover */
+    background-color: #0056b3;
 }
+
 
 .notification-wrapper {
 	position: relative;

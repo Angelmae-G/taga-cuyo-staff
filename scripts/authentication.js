@@ -1,7 +1,6 @@
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js";
-import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-storage.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyAqr7jav_7l0Y7gIhfTklJXnHPzjAYV8f4",
@@ -21,12 +20,60 @@ const auth = getAuth(app);
 let isLoggingOut = false;
 let currentUser = null;
 
+// Getter function for the current user
+const getCurrentUser = () => currentUser;
+const userEmailElement = document.getElementById('user-email');
+const userRoleElement = document.getElementById('user-role');
+
+if (userEmailElement && userRoleElement) {
+    userEmailElement.textContent = `Logged in as: ${user.email}`;
+    userRoleElement.textContent = `Role: ${userData.role}`;
+} else {
+    console.warn("⚠️ User info elements not found in the HTML.");
+}
+
 // Ensure HTML elements exist
 document.addEventListener("DOMContentLoaded", function () {
-    if (!document.getElementById('user-email') || !document.getElementById('user-role')) {
-        console.error("❌ User info elements not found in the HTML.");
-    }
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+            console.log("❌ No user is signed in.");
+            alert("Please log in to continue.");
+            window.location.href = "staff_login.html";
+            return;
+        }
+
+        currentUser = user;
+        console.log("✅ User is signed in:", user);
+
+        try {
+            const userRef = doc(db, "admin", user.uid);
+            const userSnap = await getDoc(userRef);
+
+            if (userSnap.exists()) {
+                const userData = userSnap.data();
+
+                // ✅ Get elements only AFTER the page has loaded
+                const userEmailElement = document.getElementById('user-email');
+                const userRoleElement = document.getElementById('user-role');
+
+                if (userEmailElement && userRoleElement) {
+                    userEmailElement.textContent = `Logged in as: ${user.email}`;
+                    userRoleElement.textContent = `Role: ${userData.role}`;
+                } else {
+                    console.warn("⚠️ User info elements not found in the HTML.");
+                }
+
+                await updateDoc(userRef, { isActive: true });
+            } else {
+                alert("User data not found in Firestore.");
+                window.location.href = "staff_login.html";
+            }
+        } catch (error) {
+            console.error("❌ Error fetching user data:", error);
+        }
+    });
 });
+
 
 // Monitor authentication state
 onAuthStateChanged(auth, async (user) => {
@@ -93,3 +140,4 @@ document.getElementById('logoutButton')?.addEventListener('click', async (event)
         alert('Error logging out. Please try again.');
     }
 });
+

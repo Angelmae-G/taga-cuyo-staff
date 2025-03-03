@@ -23,6 +23,8 @@ const storage = getStorage(app);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+let currentUser = null;
+
 // Declare activitiesRef here
 let activitiesRef;
 

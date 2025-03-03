@@ -39,23 +39,23 @@ document.addEventListener("DOMContentLoaded", loadPendingContent);
             }
     
             const data = docSnapshot.data();
-            console.log("🔍 Fetched Data:", data);
+            console.log("🔍 Fetched Data:", data); // Debugging log
     
             // ✅ Automatically detect type if missing
             if (!data.type) {
                 if (data.lesson_name) {
-                    data.type = 'lesson';
+                    data.type = 'lesson'; // Auto-fix missing type
                 } else if (data.category_name) {
                     data.type = 'category';
                 } else {
-                    console.error("❌ Cannot determine type.");
+                    console.error("❌ Cannot determine type. Missing 'type', 'lesson_name', or 'category_name'.");
                     return;
                 }
             }
     
             if (data.type === 'category') {
                 if (!data.category_name || !data.subcategory_name) {
-                    console.error("❌ Invalid category/subcategory names.");
+                    console.error("❌ Invalid location or missing category/subcategory names.");
                     return;
                 }
     
@@ -63,7 +63,7 @@ document.addEventListener("DOMContentLoaded", loadPendingContent);
                 const categorySnapshot = await getDocs(categoriesQuery);
     
                 if (categorySnapshot.empty) {
-                    console.error(`❌ Category '${data.category_name}' not found.`);
+                    console.error(`❌ Category '${data.category_name}' not found in Firestore.`);
                     return;
                 }
     
@@ -74,7 +74,7 @@ document.addEventListener("DOMContentLoaded", loadPendingContent);
                 const subcategorySnapshot = await getDocs(subcategoriesQuery);
     
                 if (subcategorySnapshot.empty) {
-                    console.error(`❌ Subcategory '${data.subcategory_name}' not found.`);
+                    console.error(`❌ Subcategory '${data.subcategory_name}' not found in Firestore.`);
                     return;
                 }
     
@@ -85,7 +85,7 @@ document.addEventListener("DOMContentLoaded", loadPendingContent);
                 console.log("✅ Resolved subcategory_id:", subcategory_id);
     
                 const wordsCollectionRef = collection(subcategoryDoc.ref, 'words');
-                await addDoc(wordsCollectionRef, {
+                const wordDocRef = await addDoc(wordsCollectionRef, {
                     word: data.word,
                     translated: data.translated,
                     options: data.options || [],
@@ -94,7 +94,7 @@ document.addEventListener("DOMContentLoaded", loadPendingContent);
                     timestamp: new Date(),
                 });
     
-                console.log("✅ Word added.");
+                console.log(`✅ Word added at: ${wordDocRef.path}`);
             } else if (data.type === 'lesson') {
                 if (!data.lesson_name || !data.location) {
                     console.error("❌ Missing lesson name or location.");
@@ -118,7 +118,7 @@ document.addEventListener("DOMContentLoaded", loadPendingContent);
                     });
                 }
     
-                console.log("✅ Lesson approved.");
+                console.log(`✅ Lesson approved at: ${lessonRef.path}`);
     
                 const lessonWordsRef = collection(lessonRef, 'words');
                 await addDoc(lessonWordsRef, {
@@ -129,25 +129,23 @@ document.addEventListener("DOMContentLoaded", loadPendingContent);
                     timestamp: new Date(),
                 });
     
-                console.log("✅ Word added inside lesson.");
+                console.log(`✅ Word added inside lesson: ${lessonRef.path}/words`);
             } else {
-                console.error(`❌ Invalid type: '${data.type}'`);
+                console.error(`❌ Invalid type: '${data.type}', cannot approve.`);
                 return;
             }
     
             await updateDoc(docRef, { isApprove: true });
     
-            // ✅ Fix: Find the correct document in `category_activities` or `lesson_activities`
             const activityCollection = data.type === 'category' ? 'category_activities' : 'lesson_activities';
-            const activityQuery = query(collection(db, activityCollection), where('documentId', '==', docId)); 
-            const activitySnapshot = await getDocs(activityQuery);
+            const activityRef = doc(db, activityCollection, docId);
+            const activitySnapshot = await getDoc(activityRef);
     
-            if (!activitySnapshot.empty) {
-                const activityDocRef = activitySnapshot.docs[0].ref;
-                await updateDoc(activityDocRef, { isApprove: true });
-                console.log(`✅ Updated isApprove in ${activityCollection}`);
+            if (activitySnapshot.exists()) {
+                await updateDoc(activityRef, { isApprove: true });
+                console.log(`✅ Updated isApprove in ${activityCollection} for docId: ${docId}`);
             } else {
-                console.warn(`⚠️ No matching document found in ${activityCollection}.`);
+                console.warn(`⚠️ Document '${docId}' not found in '${activityCollection}'. Skipping update.`);
             }
     
             await addDoc(collection(db, 'history'), {

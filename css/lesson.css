@@ -1,25 +1,46 @@
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap');
 
-.notification-wrapper {
+.notification-container {
 	position: relative;
 	display: inline-block;
+}
+.notification-icon {
 	cursor: pointer;
-  }
-  
-  .notification-icon {
 	font-size: 24px;
-  }
-  
-  .notification-dot {
+	position: relative;
+}
+.notification-counter {
 	position: absolute;
-	top: 0;
-	right: 0;
-	width: 10px;
-	height: 10px;
-	background-color: rgb(0, 26, 255);
+	top: -5px;
+	right: -10px;
+	background: red;
+	color: white;
 	border-radius: 50%;
-	display: none; /* Hidden by default */
-  }
+	padding: 3px 7px;
+	font-size: 12px;
+}
+.dropdown {
+	display: none;
+	position: absolute;
+	right: 0;
+	background: white;
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+	width: 250px;
+	max-height: 300px;
+	overflow-y: auto;
+}
+.dropdown.show {
+	display: block;
+}
+.dropdown ul {
+	list-style: none;
+	padding: 10px;
+	margin: 0;
+}
+.dropdown li {
+	padding: 10px;
+	border-bottom: 1px solid #ddd;
+}
   
   .dropdown {
 	display: none;
