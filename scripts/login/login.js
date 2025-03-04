@@ -69,4 +69,3 @@ document.getElementById('forgot-password-form').addEventListener('submit', async
         alert("Error processing request: " + error.message);
     }
 });
-

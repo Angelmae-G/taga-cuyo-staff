@@ -1,61 +1,43 @@
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap');
 
-
-/* Modal background overlay */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 10;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
-    display: flex;
-    justify-content: center; /* Center horizontally */
-    align-items: center;     /* Center vertically */
-}
-
-/* Modal content - image */
-.modal-content {
-    max-width: 90vw; /* Fit within viewport width */
-    max-height: 80vh; /* Fit within viewport height */
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    position: relative; /* Ensures buttons are positioned relative to the image */
-}
-
-/* Close button style */
-.close, .back-button {
+.close {
     position: absolute;
     top: 10px;
-    padding: 5px 10px;
-    font-size: 16px;
-    color: #fff;
-    background-color: rgba(0, 0, 0, 0.6);
-    border: none;
-    border-radius: 5px;
+    left: 10px; /* Move it to the left */
+    font-size: 20px;
     cursor: pointer;
-    transition: background-color 0.3s;
-    z-index: 11;
-}
-
-.close {
-    right: 10px; /* Close button at top-right */
+    color: white;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 5px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
 }
 
 .close:hover {
-    background-color: rgba(255, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.7);
 }
 
-.back-button {
-    left: 10px; /* Back button at top-left */
-    background-color: #007bff;
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.back-button:hover {
-    background-color: #0056b3;
+.modal-content {
+    max-width: 90%;
+    max-height: 90%;
 }
+
 
 
 .notification-wrapper {
@@ -68,16 +50,20 @@
 	font-size: 24px;
   }
   
+  
   .notification-dot {
 	position: absolute;
-	top: 0;
-	right: 0;
+	top: -5px;
+	right: -5px;
 	width: 10px;
 	height: 10px;
-	background-color: rgb(0, 26, 255);
+	background-color: red;
 	border-radius: 50%;
-	display: none; /* Hidden by default */
+	display: none; /* Initially hidden */
   }
+  
+  
+  
   
   .dropdown {
 	display: none;
@@ -126,6 +112,13 @@
   .dropdown p:hover {
 	background-color: #b3e1f3; /* Sky blue background on hover */
   }
+  
+* {
+	font-family: 'Open Sans', sans-serif;
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
   
 	  
 * {

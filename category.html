@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
     <link rel="stylesheet" href="css/category.css">    
     <title>Categories</title>
 </head>
@@ -22,6 +24,8 @@
         <li><a href="category.html" class="active"><i class='bx bxs-component icon'></i> Categories</a></li>
         <li class="divider" data-text="IN APPLICATION">OTHERS</li>
         <li><a href="status.html" class=""><i class='bx bxs-folder icon'></i>Status</a></li>
+        <li><a href="report.html" class=""><i class='bx bxs-folder-open icon'></i> Report</a></li>
+
         <li><a href="staff_login.html" id="logoutButton"><i class='bx bxs-log-out-circle'></i> Logout</a></li>
     </ul>
 </section>
@@ -42,10 +46,11 @@
               <p>No new notifications</p>
             </div>
     </nav>
-
     <main>
         <div id="imageModal" class="modal">
-            <span class="close" id="closeModal">&times;</span>
+            <span class="close" id="closeModal">
+                <i class="fas fa-times"></i>
+            </span>
             <button class="back-button" onclick="closeModal()">Back</button>
             <img class="modal-content" id="modalImage">
         </div>
