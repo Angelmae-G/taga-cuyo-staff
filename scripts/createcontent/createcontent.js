@@ -159,8 +159,22 @@ window.addWordToCategory = async function () {
 
     const file = document.getElementById('category-image').files[0];
 
+    // Regular expression to allow only alphabets (both uppercase and lowercase)
+    const alphabetRegex = /^[A-Za-z]+$/;
+
     if (!categoryId || !subcategory_name || !word || !translated || options.length < 2 || !file) {
         alert('Please fill out all fields and ensure there are at least two options and an image.');
+        return;
+    }
+
+    // Validate that word, translated, and options only contain alphabetic characters
+    if (!alphabetRegex.test(word) || !alphabetRegex.test(translated)) {
+        alert('Only alphabetic characters are allowed for word and translation.');
+        return;
+    }
+
+    if (!options.every(option => alphabetRegex.test(option))) {
+        alert('Only alphabetic characters are allowed for options.');
         return;
     }
 
@@ -221,7 +235,6 @@ window.addWordToCategory = async function () {
     }
 };
 
-
 // Fetch the category name using its ID
 async function getCategoryName(id) {
     try {
@@ -239,6 +252,7 @@ async function getCategoryName(id) {
 
 
 
+
 // Add word to lesson (approval process for lesson)
 window.addWordToLesson = async function () {
     const lessonId = document.getElementById('lesson-select').value; // Get the selected lesson ID
@@ -248,9 +262,23 @@ window.addWordToLesson = async function () {
         .map(input => input.value.trim())
         .filter(value => value);
 
+    // Regular expression to allow only alphabets (uppercase and lowercase)
+    const alphabetRegex = /^[A-Za-z]+$/;
+
     // Validate input fields
     if (options.length < 2 || !word || !translated) {
         alert("Please complete all fields and add at least two options.");
+        return;
+    }
+
+    // Validate that word, translated, and options only contain alphabetic characters
+    if (!alphabetRegex.test(word) || !alphabetRegex.test(translated)) {
+        alert('Only alphabetic characters are allowed for word and translation.');
+        return;
+    }
+
+    if (!options.every(option => alphabetRegex.test(option))) {
+        alert('Only alphabetic characters are allowed for options.');
         return;
     }
 
@@ -303,7 +331,7 @@ async function getLessonData(id) {
         console.error("Error fetching lesson data:", error);
         return { lesson_number: "N/A", lesson_name: "N/A" };
     }
-}
+};
 
 
 
