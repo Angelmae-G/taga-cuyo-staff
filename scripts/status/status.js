@@ -104,6 +104,7 @@ function addDeleteListeners() {
 
 // Load activities when the page loads
 window.addEventListener("DOMContentLoaded", loadActivities);
+
 function listenForNotifications() {
   const activitiesRef = collection(db, 'activities');
 
@@ -111,77 +112,79 @@ function listenForNotifications() {
     const notifications = [];
     let hasNewNotifications = false;
 
-    snapshot.forEach((doc) => {
-      const data = doc.data();
+    snapshot.forEach((docSnap) => {
+      const data = docSnap.data();
+      const docId = docSnap.id;
 
-      // Check if the activity is approved, rejected, or pending
-      if (data.isApprove !== null) {
+      // **Only show approved notifications that haven't been seen**
+      if (data.isApprove && !data.isSeen) {
         hasNewNotifications = true;
 
-        // Determine the redirection link based on the action and type
-        let redirectLink = '#'; // Default fallback link
-        if (data.isApprove) {
-          if (data.action.includes('Added word in Lesson')) {
-            redirectLink = 'lesson.html'; // Replace with your lesson page URL
-          } else if (data.action.includes('Added word in Category')) {
-            redirectLink = 'category.html'; // Replace with your category page URL
-          }
-        } else {
-          // Pending actions go to the status page
-          redirectLink = 'status.html'; // Replace with your status page URL
-        }
-
-        // Add notification with a clickable link
-        notifications.push({
-          content: `
-            <p>
-              <a href="${redirectLink}" class="notification-link">
-                <strong>Action:</strong> ${data.action} <br>
-                <strong>Added By:</strong> ${data.addedBy} <br>
-                <strong>Status:</strong> ${data.isApprove ? 'Accepted' : 'Pending'} <br>
-              </a>
-            </p>
-            <hr>
-          `,
-          timestamp: data.timestamp, // Use this field for sorting
-        });
+        notifications.push(`
+          <p data-id="${docId}" class="notification-item">
+            <span class="notification-link">
+              <strong>Action:</strong> ${data.action} <br>
+              <strong>Added By:</strong> ${data.addedBy} <br>
+              <strong>Status:</strong> Approved <br>
+            </span>
+          </p>
+          <hr>
+        `);
       }
     });
 
-    // Sort notifications by timestamp (newest first)
-    notifications.sort((a, b) => b.timestamp - a.timestamp);
-
-    // Update the UI based on whether the user has already seen notifications
-    const notificationsSeen = localStorage.getItem('notificationsSeen') === 'true';
-
-    if (hasNewNotifications && !notificationsSeen) {
+    // **Update UI**
+    if (notifications.length > 0) {
       notificationDot.style.display = 'block'; // Show red dot
-      notificationDropdown.innerHTML = notifications.map((n) => n.content).join('');
+      notificationDropdown.innerHTML = notifications.join('');
     } else {
       notificationDot.style.display = 'none'; // Hide red dot
-      notificationDropdown.innerHTML = hasNewNotifications
-        ? notifications.map((n) => n.content).join('')
-        : '<p>No new notifications</p>';
+      notificationDropdown.innerHTML = '<p>No new notifications</p>';
     }
+
+    // **Click event to mark as seen and remove**
+    document.querySelectorAll('.notification-item').forEach((item) => {
+      item.addEventListener('click', async (event) => {
+        const notificationId = event.currentTarget.dataset.id;
+
+        // Remove from UI
+        event.currentTarget.remove();
+
+        // If no more notifications, hide the red dot
+        if (document.querySelectorAll('.notification-item').length === 0) {
+          notificationDot.style.display = 'none';
+          notificationDropdown.innerHTML = '<p>No new notifications</p>';
+        }
+
+        // **Update Firestore to mark notification as seen**
+        const notificationRef = doc(db, 'activities', notificationId);
+        await updateDoc(notificationRef, { isSeen: true });
+      });
+    });
   });
 }
 
-// Mark notifications as seen when the dropdown is clicked
+// **Start listening for notifications**
+listenForNotifications();
+
+
+// **Mark notifications as seen when the dropdown is clicked**
 notificationWrapper.addEventListener('click', () => {
   notificationDropdown.classList.toggle('active');
 
-  // Hide the red dot and mark notifications as seen in localStorage
+  // Hide the red dot and mark notifications as seen
   notificationDot.style.display = 'none';
   localStorage.setItem('notificationsSeen', 'true');
 });
 
-// Check the state of notifications when the page loads
+// **Check notification state when the page loads**
 if (localStorage.getItem('notificationsSeen') === 'true') {
-  notificationDot.style.display = 'none'; // Ensure the red dot is hidden
+  notificationDot.style.display = 'none'; // Ensure red dot stays hidden if already seen
 }
 
-// Start listening for notifications
+// **Start listening for notifications**
 listenForNotifications();
+
 
 
 // Approve or delete content based on admin action

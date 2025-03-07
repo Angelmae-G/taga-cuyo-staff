@@ -16,7 +16,7 @@
 	right: 0;
 	width: 10px;
 	height: 10px;
-	background-color: rgb(0, 26, 255);
+	background-color: rgb(255, 0, 0);
 	border-radius: 50%;
 	display: none; /* Hidden by default */
   }
@@ -141,9 +141,7 @@ li {
 #sidebar.hide:hover {
 	max-width: 260px;
 }
-#sidebar::-webkit-scrollbar {
-	display: none;
-}
+
 #sidebar .brand {
 	font-size: 24px;
 	display: flex;
@@ -354,12 +352,7 @@ nav .nav-link .badge {
 	font-size: 10px;
 	font-weight: 700;
 }
-nav .divider {
-	width: 1px;
-	background: var(--grey);
-	height: 12px;
-	display: block;
-}
+
 nav .profile {
 	position: relative;
 }

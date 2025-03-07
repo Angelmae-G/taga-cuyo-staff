@@ -409,92 +409,103 @@ document.getElementById('wordsTableBody').addEventListener('click', function(eve
 });
 
 
+
 document.addEventListener('DOMContentLoaded', function () {
-const notificationDot = document.getElementById('notificationDot');
-const notificationDropdown = document.getElementById('notificationDropdown');
-const notificationWrapper = document.getElementById('notificationWrapper');
-
-if (!notificationDot || !notificationDropdown || !notificationWrapper) {
-console.error('Notification elements are missing!');
-return;
-}
-
-// Check for unseen notifications on page load
-checkUnseenNotifications();
-
-// Handle notification dropdown toggle and mark as seen
-notificationWrapper.addEventListener('click', () => {
-notificationDropdown.classList.toggle('active');
-if (notificationDot.style.display === 'block') {
-notificationDot.style.display = 'none'; // Hide the red dot
-markNotificationsAsSeen(); // Mark notifications as seen
-}
-});
-
-// Listen for new notifications in real-time
-listenForNotifications();
-});
-
-function markNotificationsAsSeen() {
-// Store the "seen" state in localStorage
-localStorage.setItem('notificationsSeen', 'true');
-console.log('Notifications marked as seen');
-}
-
-function listenForNotifications() {
-const activitiesRef = collection(db, 'activities');
-
-onSnapshot(activitiesRef, (snapshot) => {
-const notifications = [];
-let hasNewNotifications = false;
-
-snapshot.forEach((doc) => {
-const data = doc.data();
-console.log('Document Data:', data);
-console.log(notificationDot.style.display)
-
-// Ensure isApprove exists and is true for the notification to show
-if (data.isApprove !== null && data.isApprove) {
-hasNewNotifications = true;
-
-let redirectLink = '#';
-if (data.action.includes('Added word in Lesson')) {
-  redirectLink = 'lesson.html';
-} else if (data.action.includes('Added word in Category')) {
-  redirectLink = 'category.html';
-}
-
-notifications.push(`
-  <p>
-    <a href="${redirectLink}" class="notification-link">
-      <strong>Action:</strong> ${data.action} <br>
-      <strong>Added By:</strong> ${data.addedBy} <br>
-      <strong>Status:</strong> ${data.isApprove ? 'Accepted' : 'Pending'} <br>
-    </a>
-  </p>
-  <hr>
-`);
-}
-});
-
-// Sort notifications by timestamp (if timestamps are available)
-notifications.sort((a, b) => b.timestamp - a.timestamp);
-
-// Update the notification dropdown content
-const dropdownContent = notifications.length
-? notifications.join('')
-: '<p>No new notifications</p>';
-notificationDropdown.innerHTML = dropdownContent;
-
-// Show red dot if there are new notifications and they haven't been seen
-const notificationsSeen = localStorage.getItem('notificationsSeen') === 'true';
-if (hasNewNotifications && !notificationsSeen) {
-notificationDot.style.display = 'block'; // Show the red dot
-}
-});
-}
-
-function checkUnseenNotifications() {
-const isSeen = localStorage.getItem('notificationsSeen') === 'true';
-notificationDot.style.display = isSeen ? 'none' : 'block'; // Show or hide based on localStorage
-}
+    const notificationDot = document.getElementById('notificationDot');
+    const notificationDropdown = document.getElementById('notificationDropdown');
+    const notificationWrapper = document.getElementById('notificationWrapper');
+  
+    if (!notificationDot || !notificationDropdown || !notificationWrapper) {
+      console.error('Notification elements are missing!');
+      return;
+    }
+  
+    // **Check unseen notifications on page load**
+    checkUnseenNotifications();
+  
+    // **Listen for notifications**
+    listenForNotifications();
+  
+    // **Handle dropdown click to mark notifications as seen**
+    notificationWrapper.addEventListener('click', () => {
+      notificationDropdown.classList.toggle('active');
+  
+      if (notificationDot.style.display === 'block') {
+        notificationDot.style.display = 'none'; // Hide red dot
+        markNotificationsAsSeen(); // Mark as seen
+      }
+    });
+  });
+  
+  function markNotificationsAsSeen() {
+    // Store the "seen" state in localStorage
+    localStorage.setItem('notificationsSeen', 'true');
+    console.log('Notifications marked as seen');
+  }
+  
+  function listenForNotifications() {
+    const activitiesRef = collection(db, 'activities');
+  
+    onSnapshot(activitiesRef, (snapshot) => {
+      const notifications = [];
+      let hasNewNotifications = false;
+  
+      snapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        const docId = docSnap.id;
+  
+        // **Only show approved notifications that haven't been seen**
+        if (data.isApprove && !data.isSeen) {
+          hasNewNotifications = true;
+  
+          notifications.push(`
+            <p data-id="${docId}" class="notification-item">
+              <span class="notification-link">
+                <strong>Action:</strong> ${data.action} <br>
+                <strong>Added By:</strong> ${data.addedBy} <br>
+                <strong>Status:</strong> Approved <br>
+              </span>
+            </p>
+            <hr>
+          `);
+        }
+      });
+  
+      // **Update UI**
+      if (notifications.length > 0) {
+        notificationDot.style.display = 'block'; // Show red dot
+        notificationDropdown.innerHTML = notifications.join('');
+      } else {
+        notificationDot.style.display = 'none'; // Hide red dot
+        notificationDropdown.innerHTML = '<p>No new notifications</p>';
+      }
+  
+      // **Click event to mark as seen and remove**
+      document.querySelectorAll('.notification-item').forEach((item) => {
+        item.addEventListener('click', async (event) => {
+          const notificationId = event.currentTarget.dataset.id;
+  
+          // Remove from UI
+          event.currentTarget.remove();
+  
+          // If no more notifications, hide the red dot
+          if (document.querySelectorAll('.notification-item').length === 0) {
+            notificationDot.style.display = 'none';
+            notificationDropdown.innerHTML = '<p>No new notifications</p>';
+          }
+  
+          // **Update Firestore to mark notification as seen**
+          const notificationRef = doc(db, 'activities', notificationId);
+          await updateDoc(notificationRef, { isSeen: true });
+        });
+      });
+    });
+  }
+  
+  // **Check notification state when the page loads**
+  function checkUnseenNotifications() {
+    const isSeen = localStorage.getItem('notificationsSeen') === 'true';
+    if (isSeen) {
+      notificationDot.style.display = 'none'; // Ensure red dot stays hidden if already seen
+    }
+  }
