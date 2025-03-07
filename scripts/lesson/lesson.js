@@ -131,6 +131,7 @@ async function handleEdit(event) {
                 action: 'Edited word in Lesson',
                 addedBy: currentUserEmail,
                 lesson_id: lessonNumber,  
+                location: 'lesson',
                 wordId: docId, // Store the document ID of the edited word
                 oldWord: wordCell.dataset.originalWord,
                 word: updatedWord,
@@ -214,6 +215,7 @@ async function handleDelete(event) {
                 action: 'Deleted word from Lesson',
                 addedBy: currentUserEmail,
                 timestamp: serverTimestamp(),
+                location: 'lesson',
                 word: word,
                 translated: translated,  
                 lesson_id: lessonNumber, // Store lesson_id

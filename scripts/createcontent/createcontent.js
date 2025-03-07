@@ -211,7 +211,7 @@ window.addWordToCategory = async function () {
                     category_id: categoryId,
                     subcategory_name: subcategory_name,
                     category_name: category_name,
-                    type: 'category',
+                    location: 'category',
                     action: 'Added word in Category',
                     isApprove: false,
                     timestamp: new Date(),
@@ -297,6 +297,7 @@ window.addWordToLesson = async function () {
             lesson_id: lesson_number, // Store the lesson number instead of the document ID
             lesson_name: lesson_name, // Store the lesson name
             isApprove: false,
+            
             timestamp: new Date(),
         };
 
