@@ -339,6 +339,13 @@ async function getLessonData(id) {
 // Add option field to lesson
 window.addOptionToLesson = function () {
     const optionsContainer = document.getElementById('options-container-lesson');
+    
+    // Check if the current number of options is 8
+    if (optionsContainer.children.length >= 8) {
+        alert('You can only add up to 8 options.');
+        return;
+    }
+
     const optionWrapper = document.createElement('div');
     optionWrapper.className = 'option-wrapper';
 
@@ -350,28 +357,68 @@ window.addOptionToLesson = function () {
     const removeIcon = document.createElement('i');
     removeIcon.className = 'fas fa-trash';
     removeIcon.style.cursor = 'pointer';
-    removeIcon.onclick = () => optionsContainer.removeChild(optionWrapper);
+    removeIcon.onclick = () => {
+        optionsContainer.removeChild(optionWrapper);
+    };
 
     optionWrapper.append(newOption, removeIcon);
     optionsContainer.appendChild(optionWrapper);
 };
+
 
 // Add option field to category
 window.addOptionToCategory = function () {
     const optionsContainer = document.getElementById('options-container-category');
+    const optionInputs = optionsContainer.querySelectorAll('.option-input');
+
+    // Ensure there are at most 3 options
+    if (optionInputs.length >= 3) {
+        alert('You can only have up to 3 options.');
+        return;
+    }
+
     const optionWrapper = document.createElement('div');
-    optionWrapper.className = 'option-wrapper';
+    optionWrapper.className = 'option-wrapper flex items-center space-x-2';
 
     const newOption = document.createElement('input');
     newOption.type = 'text';
-    newOption.className = 'option-input';
+    newOption.className = 'option-input w-full border border-gray-300 rounded p-2';
     newOption.placeholder = 'Enter option';
 
     const removeIcon = document.createElement('i');
-    removeIcon.className = 'fas fa-trash';
-    removeIcon.style.cursor = 'pointer';
-    removeIcon.onclick = () => optionsContainer.removeChild(optionWrapper);
+    removeIcon.className = 'fas fa-trash text-gray-500 cursor-pointer';
+    removeIcon.onclick = () => {
+        optionsContainer.removeChild(optionWrapper);
+    };
 
     optionWrapper.append(newOption, removeIcon);
     optionsContainer.appendChild(optionWrapper);
 };
+
+// Ensure exactly 3 options on page load
+document.addEventListener("DOMContentLoaded", function () {
+    const optionsContainer = document.getElementById('options-container-category');
+    let existingOptions = optionsContainer.querySelectorAll('.option-input').length;
+
+    // Add missing options to make it 3 total
+    for (let i = existingOptions; i < 3; i++) {
+        const optionWrapper = document.createElement('div');
+        optionWrapper.className = 'option-wrapper flex items-center space-x-2';
+
+        const newOption = document.createElement('input');
+        newOption.type = 'text';
+        newOption.className = 'option-input w-full border border-gray-300 rounded p-2';
+        newOption.placeholder = `Enter option`;
+
+        const removeIcon = document.createElement('i');
+        removeIcon.className = 'fas fa-trash text-gray-500 cursor-pointer';
+        removeIcon.onclick = () => {
+            optionsContainer.removeChild(optionWrapper);
+        };
+
+        optionWrapper.append(newOption, removeIcon);
+        optionsContainer.appendChild(optionWrapper);
+    }
+});
+
+
