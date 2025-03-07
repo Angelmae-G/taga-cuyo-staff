@@ -79,6 +79,34 @@
 	padding: 0;
 	box-sizing: border-box;
 }
+.icon-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+}
+
+.report-icon {
+    background-color: #ff4757;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.report-icon:hover {
+    background-color: #e84118;
+}
+
+.hidden {
+    display: none;
+}
+
+
 
 :root {
 	--grey: #F1F0F6;

@@ -2,7 +2,8 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js';
 import { getFirestore, query, where, collection, addDoc, getDocs, doc, updateDoc, serverTimestamp, onSnapshot } from 'https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'https://www.gstatic.com/firebasejs/11.2.0/firebase-storage.js';
-import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js';
+
 
 // Firebase configuration
 const firebaseConfig = {
@@ -23,10 +24,16 @@ const storage = getStorage(app);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-let currentUser = null;
+
 
 // Declare activitiesRef here
 let activitiesRef;
+
+
+
+// Auth check and loading categories
+
+
 
 onAuthStateChanged(auth, async (user) => {
     const loginMessage = document.getElementById('loginMessage');
@@ -104,18 +111,7 @@ profileLink.classList.remove("show"); // Hide the menu when clicking outside
 });
 });
 
-// Sign out functionality
-document.getElementById('logoutButton').addEventListener('click', async (event) => {
-    event.preventDefault();
-    try {
-        await signOut(auth);
-        alert('You have been logged out successfully.');
-        window.location.href = "staff_login.html"; // Redirect to the login page after logout
-    } catch (error) {
-        console.error('Error logging out:', error);
-        alert('Error logging out. Please try again.');
-    }
-});
+
 
 // Function to fetch staff info
 async function fetchStaffInfo(uid) {
@@ -203,6 +199,7 @@ activitiesArray.forEach(activity => {
             <p><strong>Action:</strong> ${activity.action}</p>
             <p><strong>Date:</strong> ${formattedDate}</p>
             <p><strong>Executed by:</strong> ${activity.addedBy}</p>
+            <p><strong>Status</strong> ${activity.isApprove}</p>
         `;
 
         console.log("Activity Data:", activity); // Debugging log

@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js";
-    import { getFirestore, collection, getDocs, doc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js";
+    import { getFirestore, collection, getDocs, doc, updateDoc, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js";
 
     const firebaseConfig = {
             apiKey: "AIzaSyAqr7jav_7l0Y7gIhfTklJXnHPzjAYV8f4",
@@ -15,100 +15,95 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebas
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
+    const activitiesRef = collection(db, "activities");
+
     let isLoggingOut = false;
 
     // Monitor authentication state
-    onAuthStateChanged(auth, (user) => {
-        if (isLoggingOut) return; // Prevent handling state change if logging out
-
-        if (user) {
-            console.log("User is signed in:", user.email);
-        } else {
-            console.log("No user is signed in.");
-            alert("Please log in to continue.");
-            window.location.href = "staff_login.html"; // Redirect to login page if not signed in
-        }
-    });
+    
 
   // Load history records from the 'history' collection
-async function loadHistory() {
-    const historySnapshot = await getDocs(collection(db, 'history'));
-    const historyTableBody = document.querySelector('#historyTable tbody'); // Assuming a table with ID 'historyTable'
+  async function loadActivities() {
+    const tableBody = document.querySelector("tbody");
+    tableBody.innerHTML = ""; // Clear table before loading
 
-    historySnapshot.forEach((docSnapshot) => {
-        const data = docSnapshot.data();
-        const row = document.createElement('tr');
-
-        row.innerHTML = `
-            <td>${data.action}</td>
-            <td>${data.contentType || 'Unknown'}</td>
-            <td>${data.dismissedReason || 'No reason provided'}</td>
-            <td>${data.user}</td>
-            <td>${data.timestamp?.toDate().toLocaleString() || 'No timestamp'}</td>
-        `;
-
-        historyTableBody.appendChild(row);
-    });
-}
-
-document.addEventListener("DOMContentLoaded", loadHistory);
-const notificationDot = document.getElementById('notificationDot');
-    const notificationDropdown = document.getElementById('notificationDropdown');
-    const notificationWrapper = document.getElementById('notificationWrapper');
-
-
- // Load pending and dismissed content on page load
- async function loadPendingContent() {
-    const activitiesSnapshot = await getDocs(collection(db, 'activities'));
-    const tableBody = document.querySelector('tbody');
-    tableBody.innerHTML = '';  // Clear the table before repopulating it
-
+    const activitiesSnapshot = await getDocs(activitiesRef);
     const activities = [];
-    activitiesSnapshot.forEach((docSnapshot) => {
-        const data = docSnapshot.data();
-        activities.push({ ...data, id: docSnapshot.id });
+
+    activitiesSnapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        activities.push({ ...data, id: docSnap.id });
     });
 
     // Sort activities by timestamp (latest first)
-    activities.sort((a, b) => b.timestamp?.toDate() - a.timestamp?.toDate());
+    activities.sort((a, b) => (b.timestamp?.toDate() - a.timestamp?.toDate()));
 
     activities.forEach((activity) => {
-        const row = document.createElement('tr');
-        const rowId = activity.id;  // Save the doc ID for later use
-
-        console.log(activity);
+        const row = document.createElement("tr");
 
         // Determine action content
-        const wordDisplay = activity.word || 'No word provided';
-        const translatedDisplay = activity.translated || 'No translation available';
+        const wordDisplay = activity.word || "No word provided";
+        const translatedDisplay = activity.translated || "No translation available";
 
         // Check approval and dismissal status
         let statusDisplay;
-        let statusClass; // Use this variable to assign a CSS class
+        let statusClass;
 
         if (activity.dismissed) {
-            statusDisplay = 'Dismissed';
-            statusClass = 'status-dismissed'; // Red
+            statusDisplay = "Dismissed";
+            statusClass = "status-dismissed"; // Red
         } else if (activity.isApprove) {
-            statusDisplay = 'Approved';
-            statusClass = 'status-approved'; // Green
+            statusDisplay = "Approved";
+            statusClass = "status-approved"; // Green
         } else {
-            statusDisplay = 'Pending...';
-            statusClass = 'status-pending'; // Yellow
+            statusDisplay = "Pending...";
+            statusClass = "status-pending"; // Yellow
         }
 
         row.innerHTML = `
             <td>${activity.action}</td>
-            <td>${activity.timestamp?.toDate().toLocaleString() || 'No timestamp'}</td>
+            <td>${activity.timestamp?.toDate().toLocaleString() || "No timestamp"}</td>
             <td class="${statusClass}">${statusDisplay}</td>
-            <td>${activity.addedBy}</td>
+            <td>${activity.addedBy || "Unknown"}</td>
             <td>${wordDisplay}</td>
             <td>${translatedDisplay}</td>
+            <td>
+                <button class="delete-btn" data-id="${activity.id}" style="color: red; background: none; border: none; cursor: pointer;">
+                    <i class="bx bxs-trash"></i>
+                </button>
+            </td>
         `;
 
         tableBody.appendChild(row);
     });
+
+    addDeleteListeners();
 }
+
+// Function to handle delete action
+function addDeleteListeners() {
+    const deleteButtons = document.querySelectorAll(".delete-btn");
+
+    deleteButtons.forEach((button) => {
+        button.addEventListener("click", async (event) => {
+            const docId = event.target.closest("button").dataset.id;
+
+            if (confirm("Are you sure you want to delete this entry?")) {
+                try {
+                    await deleteDoc(doc(db, "activities", docId)); // Delete from Firestore
+                    event.target.closest("tr").remove(); // Remove from table
+                    alert("Entry deleted successfully!");
+                } catch (error) {
+                    console.error("Error deleting entry:", error);
+                    alert("Failed to delete the entry.");
+                }
+            }
+        });
+    });
+}
+
+// Load activities when the page loads
+window.addEventListener("DOMContentLoaded", loadActivities);
 function listenForNotifications() {
   const activitiesRef = collection(db, 'activities');
 
@@ -245,18 +240,9 @@ async function approveContent(docId, approveButton, action) {
 
 
 
-document.addEventListener("DOMContentLoaded", loadPendingContent);
 
-    // Logout functionality
-    document.getElementById('logoutButton').addEventListener('click', async (event) => {
-        event.preventDefault();
-        isLoggingOut = true;
-        try {
-            await signOut(auth);
-            alert('You have been logged out successfully.');
-            window.location.href = "staff_login.html";
-        } catch (error) {
-            console.error('Error logging out:', error);
-            alert('Error logging out. Please try again.');
-        }
-    });
+
+  
+
+
+   

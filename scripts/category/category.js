@@ -30,23 +30,12 @@ const storageBucket = "taga-cuyo-app.firebasestorage.app";
 console.log(storageBucket);
 
   
-let isLoggingOut = false;
+
 let currentUserEmail; 
 
 
 // Logout functionality
-document.getElementById('logoutButton').addEventListener('click', async (event) => {
-    event.preventDefault();
-    isLoggingOut = true;
-    try {
-        await signOut(auth);
-        alert('You have been logged out successfully.');
-        window.location.href = "staff_login.html";
-    } catch (error) {
-        console.error('Error logging out:', error);
-        alert('Error logging out. Please try again.');
-    }
-});
+
 
 // Auth check and loading categories
 onAuthStateChanged(auth, async (user) => {
@@ -190,7 +179,7 @@ async function handleEdit(event) {
     const wordCell = row.querySelector('td:nth-child(2)');
     const translatedCell = row.querySelector('td:nth-child(3)');
     const optionsCells = Array.from(row.querySelectorAll('.option'));
-    const word_id = editLink.dataset.id;
+    const word_id = editLink.dataset.id; // Document ID
     const category_name = document.getElementById('categorySelect').value;
     const subcategory_name = document.getElementById('subcategorySelect').value;
     const isCategoryPage = window.location.pathname.includes("category.html");
@@ -223,15 +212,7 @@ async function handleEdit(event) {
             const wordData = wordDoc.data();
             const imagePath = wordData.image_path || ''; // Retain existing image path
 
-            // Update word details in Firestore
-            await updateDoc(wordRef, {
-                word: updatedWord,
-                translated: updatedTranslation,
-                options: updatedOptions,
-                image_path: imagePath // Ensure image path is retained
-            });
-
-            // Log the edit to the activities collection
+            // Log the edit request instead of updating directly
             const activityData = {
                 action: 'Edited word in Category',
                 addedBy: currentUserEmail,
@@ -239,14 +220,18 @@ async function handleEdit(event) {
                 location: isCategoryPage ? 'category' : 'lesson',
                 category_name,
                 subcategory_name,
-                oldWord: wordCell.dataset.originalWord,
-                word: updatedWord,
+                oldWord: wordCell.dataset.originalWord, // Store original word before edit
+                newWord: updatedWord, // New word after edit
+                word: updatedWord, // Storing updated word
+                wordId: word_id, // Store document ID
                 options: updatedOptions,
                 translated: updatedTranslation,
                 image_path: imagePath, // Add image path to logs
-                isApprove: true,
+                isApprove: false, // Now waiting for approval
                 exactLocation: `categories/${category_name}/subcategories/${subcategory_name}/words/${word_id}`
             };
+
+            console.log("Activity Data:", activityData); // Debugging: Check if wordId is included
 
             // Save activity in both collections
             const activityRef = collection(firestore, 'activities');
@@ -255,12 +240,13 @@ async function handleEdit(event) {
             const categoryActivityRef = collection(firestore, 'category_activities');
             await addDoc(categoryActivityRef, activityData);
 
-            alert('Word updated successfully!');
-            fetchWords(subcategory_name);  // Refresh the table to show current data
+            alert('Edit request has been submitted for admin approval.');
+
+            fetchWords(subcategory_name); // Refresh the table to show current data
 
         } catch (error) {
             console.error("Error updating word:", error);
-            alert("Failed to update word. Please try again.");
+            alert("Failed to submit edit request. Please try again.");
         }
 
     } else {
@@ -384,21 +370,21 @@ async function logActivity(actionType, addedBy, details) {
 
 
 window.openImageModal = function (imagePath) {
-const modal = document.getElementById("imageModal");
-const modalImg = document.getElementById("modalImage");
-
-if (imagePath) {
-modalImg.src = imagePath;
-modal.style.display = "flex"; // Use flex for centering
-}
-};
-// Modal for images
-function openImageModal(src) {
     const modal = document.getElementById("imageModal");
     const modalImg = document.getElementById("modalImage");
-    modal.style.display = "block";
-    modalImg.src = src || 'category_images/example.jpg';
-}
+
+    if (!imagePath || imagePath.trim() === "") {
+        console.warn("Invalid image path. Modal will not open.");
+        return; // Prevent opening the modal if no image is provided
+    }
+
+    modalImg.src = imagePath;
+    modal.style.display = "flex"; // Use flex for centering
+};
+window.onload = function () {
+    document.getElementById("imageModal").style.display = "none";
+};
+
 
 function closeModal() {
     document.getElementById("imageModal").style.display = "none";

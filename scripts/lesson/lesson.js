@@ -22,18 +22,7 @@ let currentUserId;
 let currentUserEmail;
 let isLoggingOut = false;
 
-document.getElementById('logoutButton').addEventListener('click', async (event) => {
-    event.preventDefault();
-    isLoggingOut = true;
-    try {
-        await signOut(auth);
-        alert('You have been logged out successfully.');
-        window.location.href = "staff_login.html";
-    } catch (error) {
-        console.error('Error logging out:', error);
-        alert('Error logging out. Please try again.');
-    }
-});
+
 
 onAuthStateChanged(auth, async (user) => {
     const loginMessage = document.getElementById('loginMessage');
@@ -115,7 +104,7 @@ async function handleEdit(event) {
     }
 
     const isEditing = wordCell.contentEditable === 'true';
-    const docId = event.target.closest('.edit').getAttribute('data-id');
+    const docId = event.target.closest('.edit').getAttribute('data-id'); // Firestore document ID of the word
     const lessonId = document.getElementById('lessonSelect').value;
 
     if (isEditing) {
@@ -124,7 +113,7 @@ async function handleEdit(event) {
         const updatedTranslation = translatedCell.innerText.trim();
         const updatedOptions = Array.from(optionCells).map(option => option.innerText.trim());
 
-        console.log({ updatedWord, updatedTranslation, updatedOptions });
+        console.log({ updatedWord, updatedTranslation, updatedOptions, docId });
 
         try {
             // Fetch lesson details (ID and Name)
@@ -137,36 +126,35 @@ async function handleEdit(event) {
             const lessonName = lessonData.lesson_name; // Lesson name
             const lessonNumber = lessonData.lesson_id; // Lesson ID (number)
 
-            // Construct activity log data
+            // Construct activity log data including the document ID
             const activityData = {
                 action: 'Edited word in Lesson',
                 addedBy: currentUserEmail,
-                lesson_id: lessonNumber,  // Use lesson_id (number)
+                lesson_id: lessonNumber,  
+                wordId: docId, // Store the document ID of the edited word
                 oldWord: wordCell.dataset.originalWord,
                 word: updatedWord,
+                newWord: updatedWord,
                 exactLocation: `lessons/${lessonName}/words/${updatedWord || wordCell.dataset.originalWord}`,
                 lesson_name: lessonName,
                 options: updatedOptions,
                 translated: updatedTranslation,
                 timestamp: serverTimestamp(),
-                isApprove: true
+                isApprove: false,  // Now pending approval
             };
+            console.log("Final activity data being sent:", activityData);
 
-            // Perform Firestore updates in parallel
+
+            // Save edit request instead of updating directly
             await Promise.all([
-                updateDoc(doc(firestore, 'lessons', lessonId, 'words', docId), {
-                    word: updatedWord,
-                    translated: updatedTranslation,
-                    options: updatedOptions
-                }),
                 setDoc(doc(collection(firestore, 'activities')), activityData),
                 setDoc(doc(collection(firestore, 'lesson_activities')), activityData)
             ]);
 
-            alert('Word edited successfully.');
+            alert('Edit request has been submitted for admin approval.');
         } catch (error) {
             console.error('Error updating document:', error);
-            alert('Error updating word. Please try again.');
+            alert('Error submitting edit request. Please try again.');
         }
     } else {
         // Enable editing
@@ -183,7 +171,6 @@ async function handleEdit(event) {
     editIcon.classList.toggle('bxs-pencil', isEditing);
     editIcon.classList.toggle('bxs-check-circle', !isEditing);
 }
-
 
 
 

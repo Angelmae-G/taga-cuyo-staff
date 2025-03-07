@@ -3,16 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+    
+    <!-- Firebase SDK (MUST BE BEFORE CUSTOM SCRIPTS) -->
+    <!-- Firebase SDK (Use UMD version, NOT ES Modules) -->
+
+
+
+    <!-- Stylesheets -->
+    <link href="https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.materialdesignicons.com/5.4.55/css/materialdesignicons.min.css">
     <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
     <link rel="stylesheet" href="css/report.css">
+
     <title>Status</title>
 </head>
-<style>
-   
-     
-   </style>
 <body>
 
 <!-- SIDEBAR -->
@@ -26,9 +30,9 @@
         <li><a href="lesson.html"><i class='bx bxs-book icon'></i> Lessons</a></li>
         <li><a href="category.html"><i class='bx bxs-component icon'></i> Categories</a></li>
         <li class="divider" data-text="IN APPLICATION">OTHERS</li>
-        <li><a href="status.html" class=""><i class='bx bxs-folder icon'></i> Status</a></li>
+        <li><a href="status.html"><i class='bx bxs-folder icon'></i> Status</a></li>
         <li><a href="report.html" class="active"><i class='bx bxs-folder-open icon'></i> Report</a></li>
-        <li><a href="#" id="logoutButton"><i class='bx bxs-log-out-circle'></i> Logout</a></li>
+        <li><a href="staff_login.html" id="logoutButton"><i class='bx bxs-log-out-circle'></i> Logout</a></li>
     </ul>
 </section>
 <!-- SIDEBAR -->
@@ -36,18 +40,32 @@
 <!-- NAVBAR -->
 <section id="content">
     <nav>
-        <form action="#">
-            <div class="form-group">
-            </div>
-        </form>
         <span class="divider"></span>
-        <div class="notification-wrapper" id="notificationWrapper">
-            <span class="notification-icon">🔔</span>
-            <span class="notification-dot" id="notificationDot"></span>
-            <div class="dropdown" id="notificationDropdown">
-              <p>No new notifications</p>
-            </div>
-          </div>
-        <div class="profile"></div>
-        
     </nav>
+
+    <div class="container hidden" id="reportFormContainer">
+        <div style="text-align: center;">
+            <h2>Submit a Report?</h2> 
+            <br><br>
+            <p>If you encounter any <i>issues, bugs, or have any suggestions, </i>feel free to reach out to us.</p>
+            <p>
+                Contact the Developers via email: 
+                <a href="https://mail.google.com/mail/?view=cm&fs=1&to=tagacuyodevelopers@gmail.com" 
+                   target="_blank" 
+                   id="reportBugLink">
+                    tagacuyodevelopers@gmail.com   
+                </a>
+            </p>
+<br><br>
+<p><b>Take note:</b>&nbsp;You will be redirected to another page with your <b>Gmail/Email</b> signed in based on your browser settings.
+    If your email is connected to the browser (e.g., Chrome), 
+   the email used to contact the developers will be the one currently logged into your browser, not necessarily the staff email. <br>As this is outside of the system.</p>    <br><br>  <p><i>If you want to add another staff account, just reach to us</i></p><br><br>   </div><br><br>
+
+</section>
+
+<!-- Your Custom Scripts (Placed at the end for better performance) -->
+<script type="module" src="scripts/authentication.js"></script>
+<script src="scripts/report.js" defer></script>
+
+</body>
+</html>

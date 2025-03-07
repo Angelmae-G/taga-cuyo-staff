@@ -347,4 +347,3 @@ window.addOptionToCategory = function () {
     optionWrapper.append(newOption, removeIcon);
     optionsContainer.appendChild(optionWrapper);
 };
-
