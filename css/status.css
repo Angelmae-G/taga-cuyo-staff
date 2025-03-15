@@ -867,7 +867,7 @@ td {
 }
 
 .status-dismissed {
-    background-color: #f44336; /* Red */
+    background-color: #938e8e; /* Red */
     color: white;
     padding: 5px;
     border-radius: 3px;
@@ -880,3 +880,9 @@ td {
     border-radius: 3px;
 }
 
+.status-deleted {
+    background-color: #ff0d00; /* Yellow */
+    color: rgb(255, 255, 255);
+    padding: 5px;
+    border-radius: 3px;
+}
