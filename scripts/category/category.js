@@ -174,90 +174,93 @@ const getImageUrl = async (imagePath) => {
 
 // Edit word entry
 async function handleEdit(event) {
-    const editLink = event.target.closest('.edit');
-    const row = editLink.closest('tr');
-    const wordCell = row.querySelector('td:nth-child(2)');
-    const translatedCell = row.querySelector('td:nth-child(3)');
-    const optionsCells = Array.from(row.querySelectorAll('.option'));
-    const word_id = editLink.dataset.id; // Document ID
-    const category_name = document.getElementById('categorySelect').value;
-    const subcategory_name = document.getElementById('subcategorySelect').value;
-    const isCategoryPage = window.location.pathname.includes("category.html");
+  event.preventDefault(); // Prevents page jump if inside an <a> tag
+  event.stopPropagation(); // Prevents event bubbling
 
-    if (!category_name || !subcategory_name || !word_id) {
-        alert("Missing identifiers. Please ensure all fields are selected.");
-        return;
-    }
+  const editLink = event.target.closest('.edit');
+  const row = editLink.closest('tr');
+  const wordCell = row.querySelector('td:nth-child(2)');
+  const translatedCell = row.querySelector('td:nth-child(3)');
+  const optionsCells = Array.from(row.querySelectorAll('.option'));
+  const word_id = editLink.dataset.id; // Document ID
+  const category_name = document.getElementById('categorySelect').value;
+  const subcategory_name = document.getElementById('subcategorySelect').value;
+  const isCategoryPage = window.location.pathname.includes("category.html");
 
-    if (wordCell.contentEditable === "true") {
-        // Collect updated data
-        const updatedWord = wordCell.innerText.trim();
-        const updatedTranslation = translatedCell.innerText.trim();
-        const updatedOptions = optionsCells.map(opt => opt.innerText.trim());
+  if (!category_name || !subcategory_name || !word_id) {
+      alert("Missing identifiers. Please ensure all fields are selected.");
+      return;
+  }
 
-        if (!updatedWord || !updatedTranslation || updatedOptions.some(opt => !opt)) {
-            alert("Please fill in all fields.");
-            return;
-        }
+  if (wordCell.contentEditable === "true") {
+      // Collect updated data
+      const updatedWord = wordCell.innerText.trim();
+      const updatedTranslation = translatedCell.innerText.trim();
+      const updatedOptions = optionsCells.map(opt => opt.innerText.trim());
 
-        try {
-            // Get existing word data to retain `image_path`
-            const wordRef = doc(firestore, 'categories', category_name, 'subcategories', subcategory_name, 'words', word_id);
-            const wordDoc = await getDoc(wordRef);
+      if (!updatedWord || !updatedTranslation || updatedOptions.some(opt => !opt)) {
+          alert("Please fill in all fields.");
+          return;
+      }
 
-            if (!wordDoc.exists()) {
-                throw new Error("Word not found.");
-            }
+      try {
+          // Get existing word data to retain `image_path`
+          const wordRef = doc(firestore, 'categories', category_name, 'subcategories', subcategory_name, 'words', word_id);
+          const wordDoc = await getDoc(wordRef);
 
-            const wordData = wordDoc.data();
-            const imagePath = wordData.image_path || ''; // Retain existing image path
+          if (!wordDoc.exists()) {
+              throw new Error("Word not found.");
+          }
 
-            // Log the edit request instead of updating directly
-            const activityData = {
-                action: 'Edited word in Category',
-                addedBy: currentUserEmail,
-                timestamp: serverTimestamp(),
-                location: isCategoryPage ? 'category' : 'lesson',
-                category_name,
-                subcategory_name,
-                oldWord: wordCell.dataset.originalWord, // Store original word before edit
-                newWord: updatedWord, // New word after edit
-                word: updatedWord, // Storing updated word
-                wordId: word_id, // Store document ID
-                options: updatedOptions,
-                translated: updatedTranslation,
-                image_path: imagePath, // Add image path to logs
-                isApprove: false, // Now waiting for approval
-                exactLocation: `categories/${category_name}/subcategories/${subcategory_name}/words/${word_id}`
-            };
+          const wordData = wordDoc.data();
+          const imagePath = wordData.image_path || ''; // Retain existing image path
 
-            console.log("Activity Data:", activityData); // Debugging: Check if wordId is included
+          // Log the edit request instead of updating directly
+          const activityData = {
+              action: 'Edited word in Category',
+              addedBy: currentUserEmail,
+              timestamp: serverTimestamp(),
+              location: isCategoryPage ? 'category' : 'lesson',
+              category_name,
+              subcategory_name,
+              oldWord: wordCell.dataset.originalWord, // Store original word before edit
+              newWord: updatedWord, // New word after edit
+              word: updatedWord, // Storing updated word
+              wordId: word_id, // Store document ID
+              options: updatedOptions,
+              translated: updatedTranslation,
+              image_path: imagePath, // Add image path to logs
+              isApprove: false, // Now waiting for approval
+              exactLocation: `categories/${category_name}/subcategories/${subcategory_name}/words/${word_id}`
+          };
 
-            // Save activity in both collections
-            const activityRef = collection(firestore, 'activities');
-            await addDoc(activityRef, activityData);
+          console.log("Activity Data:", activityData); // Debugging: Check if wordId is included
 
-            const categoryActivityRef = collection(firestore, 'category_activities');
-            await addDoc(categoryActivityRef, activityData);
+          // Save activity in both collections
+          await Promise.all([
+              addDoc(collection(firestore, 'activities'), activityData),
+              addDoc(collection(firestore, 'category_activities'), activityData)
+          ]);
 
-            alert('Edit request has been submitted for admin approval.');
+          alert('Edit request has been submitted for admin approval.');
 
-            fetchWords(subcategory_name); // Refresh the table to show current data
+          fetchWords(subcategory_name); // Refresh the table to show current data
 
-        } catch (error) {
-            console.error("Error updating word:", error);
-            alert("Failed to submit edit request. Please try again.");
-        }
+      } catch (error) {
+          console.error("Error updating word:", error);
+          alert("Failed to submit edit request. Please try again.");
+      }
 
-    } else {
-        // Enable editing mode
-        wordCell.contentEditable = "true";
-        translatedCell.contentEditable = "true";
-        optionsCells.forEach(opt => opt.contentEditable = "true");
-        editLink.innerHTML = `<i class='bx bxs-check-circle'></i>`;
-        wordCell.dataset.originalWord = wordCell.innerText;
-    }
+  } else {
+      // Enable editing mode
+      wordCell.contentEditable = "true";
+      translatedCell.contentEditable = "true";
+      optionsCells.forEach(opt => opt.contentEditable = "true");
+      editLink.innerHTML = `<i class='bx bxs-check-circle'></i>`;
+      wordCell.dataset.originalWord = wordCell.innerText;
+  }
 }
+
 
 
 
@@ -273,6 +276,10 @@ async function handleEdit(event) {
 
 
 async function handleDelete(event) {
+
+  event.preventDefault(); // Prevents default link behavior
+  event.stopPropagation(); // Stops bubbling
+
     const deleteLink = event.target.closest('.delete');
     const wordId = deleteLink.dataset.id;
     const category_name = document.getElementById('categorySelect').value;  // Using category_name
