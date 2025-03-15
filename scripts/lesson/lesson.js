@@ -142,6 +142,7 @@ async function handleEdit(event) {
               options: updatedOptions,
               translated: updatedTranslation,
               timestamp: serverTimestamp(),
+              read: false,
               isApprove: false, 
               dismissed: false // 🔹 Added field for tracking dismissed status
           };
@@ -228,6 +229,8 @@ async function handleDelete(event) {
               addedBy: currentUserEmail,
               timestamp: serverTimestamp(),
               location: 'lesson',
+              read: false,
+              delete: false,
               word: word,
               translated: translated,
               lesson_id: lessonNumber,

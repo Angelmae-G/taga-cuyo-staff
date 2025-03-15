@@ -230,6 +230,7 @@ async function handleEdit(event) {
               options: updatedOptions,
               translated: updatedTranslation,
               image_path: imagePath, // Add image path to logs
+              read: false,
               isApprove: false, // Now waiting for approval
               exactLocation: `categories/${category_name}/subcategories/${subcategory_name}/words/${word_id}`
           };
@@ -316,6 +317,8 @@ async function handleDelete(event) {
                 options: options,  
                 translated: translated,  
                 isApprove: false,  
+                read: false,
+                delete: false,
                 type: isCategoryPage ? 'category' : 'lesson',  
                 exactLocation: `categories/${category_name}/subcategories/${subcategory_name}/words/${wordId}`,  
             };

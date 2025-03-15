@@ -45,11 +45,14 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebas
         const wordDisplay = activity.word || "No word provided";
         const translatedDisplay = activity.translated || "No translation available";
 
-        // Check approval and dismissal status
+        // Check approval, dismissal, and deletion status
         let statusDisplay;
         let statusClass;
 
-        if (activity.dismissed) {
+        if (activity.delete) {
+            statusDisplay = "Deleted";
+            statusClass = "status-deleted"; // Red
+        } else if (activity.dismissed) {
             statusDisplay = "Dismissed";
             statusClass = "status-dismissed"; // Red
         } else if (activity.isApprove) {
@@ -74,11 +77,17 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebas
             </td>
         `;
 
+        // Apply red text color for deleted activities
+        if (activity.delete) {
+            row.style.color = "red";
+        }
+
         tableBody.appendChild(row);
     });
 
     addDeleteListeners();
 }
+
 
 // Function to handle delete action
 function addDeleteListeners() {
@@ -188,64 +197,3 @@ listenForNotifications();
 
 
 // Approve or delete content based on admin action
-async function approveContent(docId, approveButton, action) {
-    try {
-        const docRef = doc(db, 'activities', docId);
-
-        if (action === 'delete') {
-            // Mark the deletion as approved and update the Firestore document
-            await updateDoc(docRef, { isApprove: true, dismissed: true });
-
-            const row = approveButton.closest('tr');
-
-            // Ensure that the row has the necessary columns
-            const statusCell = row.querySelector('td:nth-child(3)'); // Status column
-            const wordCell = row.querySelector('td:nth-child(5)'); // Word column
-            const translatedCell = row.querySelector('td:nth-child(6)'); // Translated Word column
-
-            if (statusCell && wordCell && translatedCell) {
-                // Change status and the word content to indicate deletion
-                statusCell.textContent = 'Approved (Deleted)';
-                statusCell.classList.replace('status-pending', 'status-approved'); // Update status to approved
-                wordCell.innerHTML = '<span>Deleted</span>';  // Mark word as deleted
-                translatedCell.innerHTML = '<span>Deleted</span>'; // Mark translated word as deleted
-            }
-
-            alert("Content marked as deleted and approved.");
-        } else {
-            // If it's not a delete action, just approve the content
-            await updateDoc(docRef, { isApprove: true });
-
-            const statusCell = approveButton.closest('tr').querySelector('.status-pending');
-            const approveCell = approveButton.closest('tr').querySelector('td:last-child');
-
-            if (statusCell) {
-                statusCell.textContent = 'Approved';
-            }
-            if (approveCell) {
-                approveCell.innerHTML = '<span>Accepted</span>';
-            }
-
-            alert("Content approved.");
-        }
-
-        // Remove the approve button after action (if you want)
-        approveButton.remove();
-
-    } catch (error) {
-        console.error("Error approving content:", error);
-        alert("Failed to approve content.");
-    }
-}
-
-
-
-
-
-
-
-
-  
-
-
-   

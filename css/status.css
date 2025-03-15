@@ -744,6 +744,9 @@ body {
 .status-success {
     color: green;
 }
+.status-deleted {
+    color: rgb(243, 43, 60);
+}
 
 .status-decline {
     color: red;
