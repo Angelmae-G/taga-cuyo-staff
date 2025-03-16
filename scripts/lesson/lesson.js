@@ -55,63 +55,63 @@ lessonSelect.appendChild(lessonOption);
 }
 
 window.fetchWords = async function (lessonId) {
-    const wordsTableBody = document.getElementById('wordsTableBody');
-    wordsTableBody.innerHTML = '';
+  const wordsTableBody = document.getElementById('wordsTableBody');
+  wordsTableBody.innerHTML = '';
 
-    if (!lessonId) return;
+  if (!lessonId) return;
 
-    const wordsRef = collection(firestore, 'lessons', lessonId, 'words');
-    const snapshot = await getDocs(wordsRef);
+  const wordsRef = collection(firestore, 'lessons', lessonId, 'words');
+  const snapshot = await getDocs(wordsRef);
 
-    let rowNumber = 1;
-    snapshot.forEach(doc => {
-        const wordData = doc.data();
-        const row = document.createElement('tr');
+  let rowNumber = 1;
+  snapshot.forEach(doc => {
+      const wordData = doc.data();
+      const row = document.createElement('tr');
 
-        row.innerHTML = `
-            <td>${rowNumber++}</td>
-            <td contenteditable="false" data-original-word="${wordData.word || 'N/A'}">${wordData.word || 'N/A'}</td>
-            <td contenteditable="true">${wordData.translated || 'N/A'}</td>
-            <td>
-                <ul>
-                    ${wordData.options.map(option => `<li contenteditable="true">${option}</li>`).join('')}
-                </ul>
-            </td>
-            <td class="action">
-                <a href="#" class="edit" data-id="${doc.id}"><i class='bx bxs-pencil'></i></a> |
-                <a href="#" class="delete" data-id="${doc.id}"><i class='bx bxs-trash'></i></a>
-            </td>
-        `;
+      row.innerHTML = `
+          <td>${rowNumber++}</td>
+          <td contenteditable="false" data-original-word="${wordData.word || 'N/A'}">${wordData.word || 'N/A'}</td>
+          <td contenteditable="false">${wordData.translated || 'N/A'}</td>
+          <td>
+              <ul>
+                  ${wordData.options.map(option => `<li contenteditable="false">${option}</li>`).join('')}
+              </ul>
+          </td>
+          <td class="action">
+              <a href="#" class="edit" data-id="${doc.id}"><i class='bx bxs-pencil'></i></a> |
+              <a href="#" class="delete" data-id="${doc.id}"><i class='bx bxs-trash'></i></a>
+          </td>
+      `;
 
-        wordsTableBody.appendChild(row);
-    });
+      wordsTableBody.appendChild(row);
+  });
 
-    document.querySelectorAll('.edit').forEach(editBtn => editBtn.addEventListener('click', handleEdit));
-    document.querySelectorAll('.delete').forEach(deleteBtn => deleteBtn.addEventListener('click', handleDelete));
+  document.querySelectorAll('.edit').forEach(editBtn => editBtn.addEventListener('click', handleEdit));
+  document.querySelectorAll('.delete').forEach(deleteBtn => deleteBtn.addEventListener('click', handleDelete));
 };
 
 
-async function handleEdit(event) {
-  event.preventDefault(); // Prevents default behavior that may cause a jump
-  event.stopPropagation(); // Stops the event from bubbling up
 
-  const row = event.target.closest('tr');
+async function handleEdit(event) {
+  event.preventDefault(); // Prevents default anchor behavior
+  event.stopPropagation(); // Prevents event bubbling
+
+  const editButton = event.target.closest('.edit');
+  if (!editButton) return; // Ensure only the edit button triggers editing
+
+  const row = editButton.closest('tr');
   const wordCell = row.querySelector('td:nth-child(2)');
   const translatedCell = row.querySelector('td:nth-child(3)');
   const optionCells = row.querySelectorAll('ul li');
-  const editIcon = event.target.closest('.edit')?.querySelector('i');
+  const editIcon = editButton.querySelector('i');
 
-  if (!editIcon) {
-      console.error("Edit icon not found.");
-      return; 
-  }
-
-  const isEditing = wordCell.contentEditable === 'true';
-  const docId = event.target.closest('.edit').getAttribute('data-id'); // Firestore document ID
+  const docId = editButton.getAttribute('data-id'); // Firestore document ID
   const lessonId = document.getElementById('lessonSelect').value;
 
+  const isEditing = wordCell.getAttribute("contenteditable") === "true";
+
   if (isEditing) {
-      // Collect updated values
+      // Save the edited values
       const updatedWord = wordCell.innerText.trim();
       const updatedTranslation = translatedCell.innerText.trim();
       const updatedOptions = Array.from(optionCells).map(option => option.innerText.trim());
@@ -144,7 +144,7 @@ async function handleEdit(event) {
               timestamp: serverTimestamp(),
               read: false,
               isApprove: false, 
-              dismissed: false // 🔹 Added field for tracking dismissed status
+              dismissed: false
           };
           console.log("Final activity data being sent:", activityData);
 
@@ -158,20 +158,29 @@ async function handleEdit(event) {
           console.error('Error updating document:', error);
           alert('Error submitting edit request. Please try again.');
       }
+
+      // Disable editing after saving
+      wordCell.setAttribute("contenteditable", "false");
+      translatedCell.setAttribute("contenteditable", "false");
+      optionCells.forEach(option => option.setAttribute("contenteditable", "false"));
+
+      // Ensure fields lose focus to prevent lingering editability
+      wordCell.blur();
+      translatedCell.blur();
+      optionCells.forEach(option => option.blur());
   } else {
-      wordCell.contentEditable = 'true';
-      translatedCell.contentEditable = 'true';
-      optionCells.forEach(option => option.contentEditable = 'true');
-      editIcon.classList.replace('bxs-pencil', 'bxs-check-circle'); 
+      // Enable editing only when clicking the edit icon
+      wordCell.setAttribute("contenteditable", "true");
+      translatedCell.setAttribute("contenteditable", "true");
+      optionCells.forEach(option => option.setAttribute("contenteditable", "true"));
+
+      wordCell.focus(); // Auto-focus the first field for better UX
   }
 
-  wordCell.contentEditable = !isEditing;
-  translatedCell.contentEditable = !isEditing;
-  optionCells.forEach(option => option.contentEditable = !isEditing);
+  // Toggle the edit icon
   editIcon.classList.toggle('bxs-pencil', isEditing);
   editIcon.classList.toggle('bxs-check-circle', !isEditing);
 }
-
 
 
 

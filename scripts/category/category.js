@@ -89,51 +89,50 @@ window.loadSubcategories = async function (category_id) {
 
 // Fetch words and populate table
 window.fetchWords = async function (subcategory_id) {
-    const wordsTableBody = document.getElementById('wordsTableBody');
-    wordsTableBody.innerHTML = '';
+  const wordsTableBody = document.getElementById('wordsTableBody');
+  wordsTableBody.innerHTML = '';
 
-    if (!subcategory_id) return;
+  if (!subcategory_id) return;
 
-    const category_id = document.getElementById('categorySelect').value;
-    const wordsRef = collection(firestore, 'categories', category_id, 'subcategories', subcategory_id, 'words');
-const snapshot = await getDocs(wordsRef);
+  const category_id = document.getElementById('categorySelect').value;
+  const wordsRef = collection(firestore, 'categories', category_id, 'subcategories', subcategory_id, 'words');
+  const snapshot = await getDocs(wordsRef);
 
-snapshot.forEach(doc => {
-    console.log("📝 Word:", doc.data().word, "Image Path:", doc.data().image_path);
-});
+  let rowNumber = 1;
+  for (const doc of snapshot.docs) {
+      const wordData = doc.data();
+      const imageUrl = await getImageUrl(wordData.image_path);
 
+      const row = document.createElement('tr');
+      row.innerHTML = `
+          <td>${rowNumber++}</td>
+          <td contenteditable="false">${wordData.word || 'N/A'}</td>
+          <td contenteditable="false">${wordData.translated || 'N/A'}</td>
+          <td>
+              <ul>
+                  ${wordData.options ? wordData.options.map(option => `<li contenteditable="false" class="option">${option}</li>`).join('') : '<li>N/A</li>'}
+              </ul>
+          </td>
+          <td>
+              <img src="${imageUrl}" 
+                   alt="${wordData.word || 'Image'}" 
+                   width="50" height="50" 
+                   onclick="openImageModal('${imageUrl}')" 
+                   style="cursor: pointer;" />
+          </td>
+          <td class="action">
+              <a href="#" class="edit" data-id="${doc.id}" title="Edit"><i class='bx bxs-pencil'></i></a> |
+              <a href="#" class="delete" data-id="${doc.id}" title="Delete"><i class='bx bxs-trash'></i></a>
+          </td>
+      `;
 
-    let rowNumber = 1;
-    for (const doc of snapshot.docs) {  // Using for...of loop to handle async functions
-        const wordData = doc.data();
-        const imageUrl = await getImageUrl(wordData.image_path); // Ensure URL is fetched properly
+      wordsTableBody.appendChild(row);
+  }
 
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${rowNumber++}</td>
-            <td contenteditable="false">${wordData.word || 'N/A'}</td>
-            <td contenteditable="false">${wordData.translated || 'N/A'}</td>
-            <td>
-                <ul>
-                    ${wordData.options ? wordData.options.map(option => `<li contenteditable="true" class="option">${option}</li>`).join('') : '<li>N/A</li>'}
-                </ul>
-            </td>
-            <td>
-                <img src="${imageUrl}" 
-                     alt="${wordData.word || 'Image'}" 
-                     width="50" height="50" 
-                     onclick="openImageModal('${imageUrl}')" 
-                     style="cursor: pointer;" />
-            </td>
-            <td class="action">
-                <a href="#" class="edit" data-id="${doc.id}" title="Edit"><i class='bx bxs-pencil'></i></a> |
-                <a href="#" class="delete" data-id="${doc.id}" title="Delete"><i class='bx bxs-trash'></i></a>
-            </td>
-        `;
-
-        wordsTableBody.appendChild(row);
-    }
+  document.querySelectorAll('.edit').forEach(editBtn => editBtn.addEventListener('click', handleEdit));
+  document.querySelectorAll('.delete').forEach(deleteBtn => deleteBtn.addEventListener('click', handleDelete));
 };
+
 
 // Convert Firebase Storage GS path to public URL
 const getImageUrl = async (imagePath) => {
@@ -174,15 +173,17 @@ const getImageUrl = async (imagePath) => {
 
 // Edit word entry
 async function handleEdit(event) {
-  event.preventDefault(); // Prevents page jump if inside an <a> tag
-  event.stopPropagation(); // Prevents event bubbling
+  event.preventDefault();
+  event.stopPropagation();
 
   const editLink = event.target.closest('.edit');
+  if (!editLink) return; // Ensure only the edit button triggers editing
+
   const row = editLink.closest('tr');
   const wordCell = row.querySelector('td:nth-child(2)');
   const translatedCell = row.querySelector('td:nth-child(3)');
   const optionsCells = Array.from(row.querySelectorAll('.option'));
-  const word_id = editLink.dataset.id; // Document ID
+  const word_id = editLink.dataset.id;
   const category_name = document.getElementById('categorySelect').value;
   const subcategory_name = document.getElementById('subcategorySelect').value;
   const isCategoryPage = window.location.pathname.includes("category.html");
@@ -192,7 +193,9 @@ async function handleEdit(event) {
       return;
   }
 
-  if (wordCell.contentEditable === "true") {
+  const isEditing = wordCell.getAttribute("contenteditable") === "true";
+
+  if (isEditing) {
       // Collect updated data
       const updatedWord = wordCell.innerText.trim();
       const updatedTranslation = translatedCell.innerText.trim();
@@ -213,7 +216,7 @@ async function handleEdit(event) {
           }
 
           const wordData = wordDoc.data();
-          const imagePath = wordData.image_path || ''; // Retain existing image path
+          const imagePath = wordData.image_path || '';
 
           // Log the edit request instead of updating directly
           const activityData = {
@@ -223,19 +226,19 @@ async function handleEdit(event) {
               location: isCategoryPage ? 'category' : 'lesson',
               category_name,
               subcategory_name,
-              oldWord: wordCell.dataset.originalWord, // Store original word before edit
-              newWord: updatedWord, // New word after edit
-              word: updatedWord, // Storing updated word
-              wordId: word_id, // Store document ID
+              oldWord: wordCell.dataset.originalWord,
+              newWord: updatedWord,
+              word: updatedWord,
+              wordId: word_id,
               options: updatedOptions,
               translated: updatedTranslation,
-              image_path: imagePath, // Add image path to logs
+              image_path: imagePath,
               read: false,
-              isApprove: false, // Now waiting for approval
+              isApprove: false,
               exactLocation: `categories/${category_name}/subcategories/${subcategory_name}/words/${word_id}`
           };
 
-          console.log("Activity Data:", activityData); // Debugging: Check if wordId is included
+          console.log("Activity Data:", activityData);
 
           // Save activity in both collections
           await Promise.all([
@@ -245,19 +248,39 @@ async function handleEdit(event) {
 
           alert('Edit request has been submitted for admin approval.');
 
-          fetchWords(subcategory_name); // Refresh the table to show current data
+          fetchWords(subcategory_name);
 
       } catch (error) {
           console.error("Error updating word:", error);
           alert("Failed to submit edit request. Please try again.");
       }
 
+      // Disable editing mode after saving
+      wordCell.setAttribute("contenteditable", "false");
+      translatedCell.setAttribute("contenteditable", "false");
+      optionsCells.forEach(opt => opt.setAttribute("contenteditable", "false"));
+
+      // Ensure fields lose focus
+      wordCell.blur();
+      translatedCell.blur();
+      optionsCells.forEach(opt => opt.blur());
+
+      // Change back the edit icon
+      editLink.innerHTML = `<i class='bx bxs-pencil'></i>`;
+      
   } else {
-      // Enable editing mode
-      wordCell.contentEditable = "true";
-      translatedCell.contentEditable = "true";
-      optionsCells.forEach(opt => opt.contentEditable = "true");
+      // Enable editing mode ONLY when clicking the edit icon
+      wordCell.setAttribute("contenteditable", "true");
+      translatedCell.setAttribute("contenteditable", "true");
+      optionsCells.forEach(opt => opt.setAttribute("contenteditable", "true"));
+
+      // Automatically focus on the first editable field
+      wordCell.focus();
+      
+      // Change the edit icon to a checkmark
       editLink.innerHTML = `<i class='bx bxs-check-circle'></i>`;
+
+      // Store the original value for reference
       wordCell.dataset.originalWord = wordCell.innerText;
   }
 }
