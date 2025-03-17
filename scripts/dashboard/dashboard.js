@@ -111,7 +111,16 @@ profileLink.classList.remove("show"); // Hide the menu when clicking outside
 });
 });
 
+async function fetchCategoryName(categoryId) {
+    const categoryRef = doc(firestore, "categories", categoryId);
+    const categorySnap = await getDoc(categoryRef);
 
+    if (categorySnap.exists()) {
+        return categorySnap.data().category_name; // Get the category_name field
+    } else {
+        return "Unknown Category"; // Fallback if document does not exist
+    }
+}
 
 // Function to fetch staff info
 async function fetchStaffInfo(uid) {

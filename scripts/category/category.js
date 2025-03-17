@@ -171,119 +171,128 @@ const getImageUrl = async (imagePath) => {
 
 
 
-// Edit word entry
-async function handleEdit(event) {
-  event.preventDefault();
-  event.stopPropagation();
+  async function handleEdit(event) {
+    event.preventDefault();
+    event.stopPropagation();
 
-  const editLink = event.target.closest('.edit');
-  if (!editLink) return; // Ensure only the edit button triggers editing
+    const editLink = event.target.closest('.edit');
+    if (!editLink) return;
 
-  const row = editLink.closest('tr');
-  const wordCell = row.querySelector('td:nth-child(2)');
-  const translatedCell = row.querySelector('td:nth-child(3)');
-  const optionsCells = Array.from(row.querySelectorAll('.option'));
-  const word_id = editLink.dataset.id;
-  const category_name = document.getElementById('categorySelect').value;
-  const subcategory_name = document.getElementById('subcategorySelect').value;
-  const isCategoryPage = window.location.pathname.includes("category.html");
+    const row = editLink.closest('tr');
+    const wordCell = row.querySelector('td:nth-child(2)');
+    const translatedCell = row.querySelector('td:nth-child(3)');
+    const optionsCells = Array.from(row.querySelectorAll('.option'));
+    const word_id = editLink.dataset.id;
+    const category_name = document.getElementById('categorySelect')?.value || "";
+    const subcategory_name = document.getElementById('subcategorySelect')?.value || "";
+    const isCategoryPage = window.location.pathname.includes("category.html");
 
-  if (!category_name || !subcategory_name || !word_id) {
-      alert("Missing identifiers. Please ensure all fields are selected.");
-      return;
-  }
+    if (!word_id) {
+        alert("Missing identifiers. Please ensure all fields are selected.");
+        return;
+    }
 
-  const isEditing = wordCell.getAttribute("contenteditable") === "true";
+    const isEditing = wordCell.getAttribute("contenteditable") === "true";
 
-  if (isEditing) {
-      // Collect updated data
-      const updatedWord = wordCell.innerText.trim();
-      const updatedTranslation = translatedCell.innerText.trim();
-      const updatedOptions = optionsCells.map(opt => opt.innerText.trim());
+    if (isEditing) {
+        const updatedWord = wordCell.innerText.trim();
+        const updatedTranslation = translatedCell.innerText.trim();
+        const updatedOptions = optionsCells.map(opt => opt.innerText.trim());
 
-      if (!updatedWord || !updatedTranslation || updatedOptions.some(opt => !opt)) {
-          alert("Please fill in all fields.");
-          return;
-      }
+        if (!updatedWord || !updatedTranslation || updatedOptions.some(opt => !opt)) {
+            alert("Please fill in all fields.");
+            return;
+        }
 
-      try {
-          // Get existing word data to retain `image_path`
-          const wordRef = doc(firestore, 'categories', category_name, 'subcategories', subcategory_name, 'words', word_id);
-          const wordDoc = await getDoc(wordRef);
+        // Prevent submission if the word, translation, or options contain numbers
+        const numberRegex = /\d/;
+        if (numberRegex.test(updatedWord) || numberRegex.test(updatedTranslation) || updatedOptions.some(opt => numberRegex.test(opt))) {
+            alert("Numbers are not allowed in words, translations, or options.");
+            return;
+        }
 
-          if (!wordDoc.exists()) {
-              throw new Error("Word not found.");
-          }
+        const originalWord = wordCell.dataset.originalWord;
+        const originalTranslation = translatedCell.dataset.originalTranslation;
+        const originalOptions = JSON.parse(wordCell.dataset.originalOptions || "[]");
 
-          const wordData = wordDoc.data();
-          const imagePath = wordData.image_path || '';
+        const hasChanged =
+            updatedWord !== originalWord ||
+            updatedTranslation !== originalTranslation ||
+            JSON.stringify(updatedOptions) !== JSON.stringify(originalOptions);
 
-          // Log the edit request instead of updating directly
-          const activityData = {
-              action: 'Edited word in Category',
-              addedBy: currentUserEmail,
-              timestamp: serverTimestamp(),
-              location: isCategoryPage ? 'category' : 'lesson',
-              category_name,
-              subcategory_name,
-              oldWord: wordCell.dataset.originalWord,
-              newWord: updatedWord,
-              word: updatedWord,
-              wordId: word_id,
-              options: updatedOptions,
-              translated: updatedTranslation,
-              image_path: imagePath,
-              read: false,
-              isApprove: false,
-              exactLocation: `categories/${category_name}/subcategories/${subcategory_name}/words/${word_id}`
-          };
+        if (!hasChanged) {
+            alert("No changes detected.");
+            return;
+        }
 
-          console.log("Activity Data:", activityData);
+        try {
+            const wordRef = doc(firestore, 'categories', category_name, 'subcategories', subcategory_name, 'words', word_id);
+            const wordDoc = await getDoc(wordRef);
 
-          // Save activity in both collections
-          await Promise.all([
-              addDoc(collection(firestore, 'activities'), activityData),
-              addDoc(collection(firestore, 'category_activities'), activityData)
-          ]);
+            if (!wordDoc.exists()) {
+                throw new Error("Word not found.");
+            }
 
-          alert('Edit request has been submitted for admin approval.');
+            const wordData = wordDoc.data();
+            const imagePath = wordData.image_path || "";
 
-          fetchWords(subcategory_name);
+            const activityData = {
+                action: 'Edited word in Category',
+                addedBy: currentUserEmail,
+                timestamp: serverTimestamp(),
+                location: isCategoryPage ? 'category' : 'lesson',
+                category_name: category_name,
+                subcategory_name: subcategory_name,
+                oldWord: originalWord,
+                newWord: updatedWord,
+                word: updatedWord,
+                wordId: word_id,
+                options: updatedOptions,
+                translated: updatedTranslation,
+                image_path: imagePath,
+                read: false,
+                isApprove: false,
+                exactLocation: `categories/${category_name}/subcategories/${subcategory_name}/words/${word_id}`
+            };
 
-      } catch (error) {
-          console.error("Error updating word:", error);
-          alert("Failed to submit edit request. Please try again.");
-      }
+            await Promise.all([
+                addDoc(collection(firestore, 'activities'), activityData),
+                addDoc(collection(firestore, 'category_activities'), activityData)
+            ]);
 
-      // Disable editing mode after saving
-      wordCell.setAttribute("contenteditable", "false");
-      translatedCell.setAttribute("contenteditable", "false");
-      optionsCells.forEach(opt => opt.setAttribute("contenteditable", "false"));
+            alert('Edit request has been submitted for admin approval.');
+            fetchWords(subcategory_name);
 
-      // Ensure fields lose focus
-      wordCell.blur();
-      translatedCell.blur();
-      optionsCells.forEach(opt => opt.blur());
+        } catch (error) {
+            console.error("Error updating word:", error);
+            alert("Failed to submit edit request. Please try again.");
+        }
 
-      // Change back the edit icon
-      editLink.innerHTML = `<i class='bx bxs-pencil'></i>`;
-      
-  } else {
-      // Enable editing mode ONLY when clicking the edit icon
-      wordCell.setAttribute("contenteditable", "true");
-      translatedCell.setAttribute("contenteditable", "true");
-      optionsCells.forEach(opt => opt.setAttribute("contenteditable", "true"));
+        wordCell.setAttribute("contenteditable", "false");
+        translatedCell.setAttribute("contenteditable", "false");
+        optionsCells.forEach(opt => opt.setAttribute("contenteditable", "false"));
 
-      // Automatically focus on the first editable field
-      wordCell.focus();
-      
-      // Change the edit icon to a checkmark
-      editLink.innerHTML = `<i class='bx bxs-check-circle'></i>`;
+        wordCell.blur();
+        translatedCell.blur();
+        optionsCells.forEach(opt => opt.blur());
 
-      // Store the original value for reference
-      wordCell.dataset.originalWord = wordCell.innerText;
-  }
+        editLink.innerHTML = `<i class='bx bxs-pencil'></i>`;
+
+    } else {
+        wordCell.setAttribute("contenteditable", "true");
+        translatedCell.setAttribute("contenteditable", "true");
+        optionsCells.forEach(opt => opt.setAttribute("contenteditable", "true"));
+
+        wordCell.dataset.originalWord = wordCell.innerText.trim();
+        translatedCell.dataset.originalTranslation = translatedCell.innerText.trim();
+        wordCell.dataset.originalOptions = JSON.stringify(optionsCells.map(opt => opt.innerText.trim()));
+
+        wordCell.focus();
+        editLink.innerHTML = `<i class='bx bxs-check-circle'></i>`;
+    }
 }
+
+
 
 
 

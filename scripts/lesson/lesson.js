@@ -116,6 +116,27 @@ async function handleEdit(event) {
       const updatedTranslation = translatedCell.innerText.trim();
       const updatedOptions = Array.from(optionCells).map(option => option.innerText.trim());
 
+      // Get original values
+      const originalWord = wordCell.dataset.originalWord || wordCell.innerText.trim();
+      const originalTranslation = translatedCell.dataset.originalTranslation || translatedCell.innerText.trim();
+      const originalOptions = Array.from(optionCells).map(option => option.dataset.originalOption || option.innerText.trim());
+
+      // Restrict numeric input
+      if (/\d/.test(updatedWord) || /\d/.test(updatedTranslation) || updatedOptions.some(option => /\d/.test(option))) {
+          alert("Numbers are not allowed. Please enter only letters.");
+          return;
+      }
+
+      // Prevent approval if nothing changed
+      if (
+          updatedWord === originalWord &&
+          updatedTranslation === originalTranslation &&
+          JSON.stringify(updatedOptions) === JSON.stringify(originalOptions)
+      ) {
+          alert("No changes detected. Please modify the content before submitting.");
+          return;
+      }
+
       console.log({ updatedWord, updatedTranslation, updatedOptions, docId });
 
       try {
@@ -134,7 +155,7 @@ async function handleEdit(event) {
               lesson_id: lessonNumber,  
               location: 'lesson',
               wordId: docId,
-              oldWord: wordCell.dataset.originalWord,
+              oldWord: originalWord,
               word: updatedWord,
               newWord: updatedWord,
               exactLocation: `lessons/${lessonNumber}/words/${docId}`,
@@ -169,6 +190,11 @@ async function handleEdit(event) {
       translatedCell.blur();
       optionCells.forEach(option => option.blur());
   } else {
+      // Store original values before enabling editing
+      wordCell.dataset.originalWord = wordCell.innerText.trim();
+      translatedCell.dataset.originalTranslation = translatedCell.innerText.trim();
+      optionCells.forEach(option => option.dataset.originalOption = option.innerText.trim());
+
       // Enable editing only when clicking the edit icon
       wordCell.setAttribute("contenteditable", "true");
       translatedCell.setAttribute("contenteditable", "true");
@@ -181,6 +207,7 @@ async function handleEdit(event) {
   editIcon.classList.toggle('bxs-pencil', isEditing);
   editIcon.classList.toggle('bxs-check-circle', !isEditing);
 }
+
 
 
 
