@@ -97,12 +97,18 @@
                             <div id="options-container-category" class="mb-4">
                                 <label class="block text-gray-700 mb-2">Options:</label>
                                 <input type="text" class="option-input w-full border border-gray-300 rounded p-2 mb-2"
-                                    id="option-1" name="options" placeholder="Enter option" required />
+                                    id="option-1" name="options[]" placeholder="Enter option" required />
                             </div>
-                            <button type="button" onclick="addOptionToCategory()"
-                                class="bg-green-500 text-white px-4 py-2 rounded mb-4">Add Option</button>
-
-                            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Submit</button>
+                            <div id="options-container-category-2" class="mb-4">
+                                <input type="text" class="option-input w-full border border-gray-300 rounded p-2 mb-2"
+                                    id="option-2" name="options[]" placeholder="Enter option" required />
+                            </div>
+                            <div id="options-container-category-3" class="mb-4">
+                                <input type="text" class="option-input w-full border border-gray-300 rounded p-2 mb-2"
+                                    id="option-3" name="options[]" placeholder="Enter option" required />
+                            </div>
+                            
+<button id="submit-button" type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Submit</button>
                         </form>
                     </div>
 

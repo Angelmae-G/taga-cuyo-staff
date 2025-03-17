@@ -149,6 +149,13 @@ async function loadSubcategories() {
 
 // Add word to category (approval process for category)
 window.addWordToCategory = async function () {
+    const submitButton = document.getElementById('submit-button'); // Add an ID to your submit button in HTML
+    submitButton.disabled = true; // Disable the button
+
+    setTimeout(() => {
+        submitButton.disabled = false; // Re-enable after 3 seconds
+    }, 3000);
+
     const categoryId = document.getElementById('category-select').value;
     const subcategory_name = document.getElementById('subcategory-select').value;
     const word = document.getElementById('word-category').value.trim();
@@ -228,7 +235,9 @@ window.addWordToCategory = async function () {
 
                 alert('Word added for admin approval.');
                 document.getElementById('word-category-form').reset();
-                document.getElementById('options-container-category').innerHTML = '';
+
+                // Reset the 3 options (Ensure it stays exactly 3)
+                resetOptions();
             }
         );
     } catch (error) {
@@ -236,6 +245,18 @@ window.addWordToCategory = async function () {
         alert('Error adding word. Please try again.');
     }
 };
+
+// Function to reset the options to exactly 3 after submission
+function resetOptions() {
+    const optionContainerIds = ['options-container-category', 'options-container-category-2', 'options-container-category-3'];
+
+    optionContainerIds.forEach((id, index) => {
+        const container = document.getElementById(id);
+        if (container) {
+            container.innerHTML = `<input type="text" class="option-input w-full border border-gray-300 rounded p-2 mb-2" id="option-${index + 1}" name="options[]" placeholder="Enter option" required />`;
+        }
+    });
+}
 
 // Fetch the category name using its ID
 async function getCategoryName(id) {
@@ -257,10 +278,10 @@ async function getCategoryName(id) {
 
 // Add word to lesson (approval process for lesson)
 window.addWordToLesson = async function () {
-    const lessonId = document.getElementById('lesson-select').value; // Get the selected lesson ID
-    const word = document.getElementById('word-lesson').value.trim();
-    const translated = document.getElementById('translated-lesson').value.trim();
-    const options = Array.from(document.getElementsByClassName('option-field'))
+    const lessonId = document.getElementById('lesson-select')?.value; // Get the selected lesson ID
+    const word = document.getElementById('word-lesson')?.value.trim();
+    const translated = document.getElementById('translated-lesson')?.value.trim();
+    const options = Array.from(document.getElementsByClassName('option-input'))
         .map(input => input.value.trim())
         .filter(value => value);
 
@@ -268,7 +289,7 @@ window.addWordToLesson = async function () {
     const alphabetRegex = /^[A-Za-z]+$/;
 
     // Validate input fields
-    if (options.length < 2 || !word || !translated) {
+    if (!word || !translated || options.length < 2) {
         alert("Please complete all fields and add at least two options.");
         return;
     }
@@ -319,6 +340,7 @@ window.addWordToLesson = async function () {
     }
 };
 
+
 // Function to fetch lesson number and name from Firestore
 async function getLessonData(id) {
     try {
@@ -340,34 +362,43 @@ async function getLessonData(id) {
 
 
 
-// Add option field to lesson
+// Add option field to lesson with a remove button
 window.addOptionToLesson = function () {
     const optionsContainer = document.getElementById('options-container-lesson');
-    
+
     // Check if the current number of options is 8
     if (optionsContainer.children.length >= 8) {
         alert('You can only add up to 8 options.');
         return;
     }
 
+    // Create a wrapper for the input and trash icon
     const optionWrapper = document.createElement('div');
-    optionWrapper.className = 'option-wrapper';
+    optionWrapper.className = 'flex items-center space-x-2 mb-2';
 
+    // Create input field with the correct styling
     const newOption = document.createElement('input');
     newOption.type = 'text';
-    newOption.className = 'option-field';
+    newOption.className = 'option-input w-full border border-gray-300 rounded p-2';
+    newOption.name = 'options[]';
     newOption.placeholder = 'Enter option';
+    newOption.required = true;
 
+    // Create trash icon (FontAwesome)
     const removeIcon = document.createElement('i');
-    removeIcon.className = 'fas fa-trash';
-    removeIcon.style.cursor = 'pointer';
+    removeIcon.className = 'fas fa-trash text-red-500 cursor-pointer';
     removeIcon.onclick = () => {
         optionsContainer.removeChild(optionWrapper);
     };
 
-    optionWrapper.append(newOption, removeIcon);
+    // Append input and remove icon to wrapper
+    optionWrapper.appendChild(newOption);
+    optionWrapper.appendChild(removeIcon);
+
+    // Append wrapper to container
     optionsContainer.appendChild(optionWrapper);
 };
+
 
 
 // Add option field to category
