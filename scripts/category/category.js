@@ -176,7 +176,13 @@ const getImageUrl = async (imagePath) => {
     event.stopPropagation();
 
     const editLink = event.target.closest('.edit');
-    if (!editLink) return;
+    if (!editLink || editLink.disabled) return; // Prevent multiple clicks
+
+    editLink.disabled = true; // Disable button to prevent spam
+
+    setTimeout(() => {
+        editLink.disabled = false; // Re-enable button after 3 seconds
+    }, 3000);
 
     const row = editLink.closest('tr');
     const wordCell = row.querySelector('td:nth-child(2)');
@@ -261,7 +267,13 @@ const getImageUrl = async (imagePath) => {
             ]);
 
             alert('Edit request has been submitted for admin approval.');
-            fetchWords(subcategory_name);
+
+            // Update the row dynamically without reloading
+            wordCell.innerText = updatedWord;
+            translatedCell.innerText = updatedTranslation;
+            optionsCells.forEach((opt, index) => {
+                opt.innerText = updatedOptions[index] || "";
+            });
 
         } catch (error) {
             console.error("Error updating word:", error);
@@ -291,6 +303,7 @@ const getImageUrl = async (imagePath) => {
         editLink.innerHTML = `<i class='bx bxs-check-circle'></i>`;
     }
 }
+
 
 
 

@@ -191,6 +191,34 @@ th, td {
 	text-align: left;
 	border-bottom: 1px solid #ddd;
 }
+
+th, td {
+    padding: 5	px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    min-width: 50px; /* Prevents collapsing */
+    max-width: 100%; /* Ensures it doesn't overflow */
+    white-space: nowrap; /* Keeps text in one line */
+    position: relative; /* Helps keep content in place */
+	
+}
+td[contenteditable="true"], li[contenteditable="true"] {
+	
+    background-color: #ffffff; /* Keeps background color consistent */
+    padding: 2px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    text-align: left;
+	width: auto; /* Adjusts to content */
+
+}
+
+td[contenteditable="true"]:focus, li[contenteditable="true"]:focus {
+    outline: none;
+    border: 2px solid #007bff;
+    background-color: #ffffff; /* Maintain background color on focus */
+}
+
 th {
 	 background-color: #f0f2f5;
       color: #555;
@@ -208,9 +236,11 @@ tr:nth-child(odd) {
 }
 .action a.edit {
 	color: rgb(5, 107, 12);
+	font-size: 1.5rem;
 }
 .action a.delete {
 	color: rgb(255, 0, 0);
+	font-size: 1.5rem;
 }
 #lessonSelect {
     padding: 10px;
