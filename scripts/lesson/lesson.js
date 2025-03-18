@@ -93,11 +93,13 @@ window.fetchWords = async function (lessonId) {
 
 
 async function handleEdit(event) {
-  event.preventDefault(); // Prevents default anchor behavior
-  event.stopPropagation(); // Prevents event bubbling
+  event.preventDefault(); // Prevent default anchor behavior
+  event.stopPropagation(); // Prevent event bubbling
 
   const editButton = event.target.closest('.edit');
-  if (!editButton) return; // Ensure only the edit button triggers editing
+  if (!editButton || editButton.disabled) return; // Prevent multiple clicks
+
+  editButton.disabled = true; // Disable button to prevent spam
 
   const row = editButton.closest('tr');
   const wordCell = row.querySelector('td:nth-child(2)');
@@ -124,6 +126,7 @@ async function handleEdit(event) {
       // Restrict numeric input
       if (/\d/.test(updatedWord) || /\d/.test(updatedTranslation) || updatedOptions.some(option => /\d/.test(option))) {
           alert("Numbers are not allowed. Please enter only letters.");
+          editButton.disabled = false; // Re-enable button
           return;
       }
 
@@ -134,6 +137,7 @@ async function handleEdit(event) {
           JSON.stringify(updatedOptions) === JSON.stringify(originalOptions)
       ) {
           alert("No changes detected. Please modify the content before submitting.");
+          editButton.disabled = false; // Re-enable button
           return;
       }
 
@@ -206,8 +210,12 @@ async function handleEdit(event) {
   // Toggle the edit icon
   editIcon.classList.toggle('bxs-pencil', isEditing);
   editIcon.classList.toggle('bxs-check-circle', !isEditing);
-}
 
+  // Re-enable button after 3 seconds
+  setTimeout(() => {
+      editButton.disabled = false;
+  }, 3000);
+}
 
 
 

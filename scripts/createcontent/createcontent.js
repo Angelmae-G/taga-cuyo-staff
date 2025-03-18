@@ -222,6 +222,7 @@ window.addWordToCategory = async function () {
                     action: 'Added word in Category',
                     isApprove: false,
                     delete: false,
+                    dismissed: false,
                     read: false,
                     timestamp: new Date(),
                 };
@@ -322,6 +323,7 @@ window.addWordToLesson = async function () {
             isApprove: false,
             delete: false,
             read: false,
+            dismissed: false,
             timestamp: new Date(),
         };
 
