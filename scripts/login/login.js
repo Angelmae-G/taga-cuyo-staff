@@ -29,28 +29,20 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     }
 });
 
-// Open Forgot Password Modal
-document.getElementById('forgot-password-link').addEventListener('click', () => {
-    document.getElementById('forgot-password-modal').classList.remove('hidden');
-});
+// Handle Forgot Password Directly Without Modal
+document.getElementById('forgot-password-link').addEventListener('click', async () => {
+    const email = document.getElementById('email').value;
 
-// Handle Forgot Password Form Submission (Only Sends Email)
-document.getElementById('forgot-password-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = document.getElementById('forgot-email').value;
+    if (!email) {
+        alert("Please enter your email before clicking Forgot Password.");
+        return;
+    }
 
     try {
-        // Send password reset email
         await sendPasswordResetEmail(auth, email);
         alert("A password reset link has been sent to your email.");
-        document.getElementById('forgot-password-modal').classList.add('hidden');
     } catch (error) {
         console.error("Error:", error);
         alert("Failed to send password reset email. Please check your email and try again.");
     }
-});
-
-// Close Modal
-document.getElementById('close-modal').addEventListener('click', () => {
-    document.getElementById('forgot-password-modal').classList.add('hidden');
 });
