@@ -46,3 +46,18 @@ document.getElementById('forgot-password-link').addEventListener('click', async 
         alert("Failed to send password reset email. Please check your email and try again.");
     }
 });
+
+document.getElementById('togglePassword').addEventListener('click', function () {
+    const passwordField = document.getElementById('password');
+    const toggleIcon = document.getElementById('togglePassword');
+
+    if (passwordField.type === 'password') {
+        passwordField.type = 'text';
+        toggleIcon.classList.remove('fa-eye-slash');
+        toggleIcon.classList.add('fa-eye'); // Open eye when visible
+    } else {
+        passwordField.type = 'password';
+        toggleIcon.classList.remove('fa-eye');
+        toggleIcon.classList.add('fa-eye-slash'); // Eye with slash when hidden
+    }
+});
