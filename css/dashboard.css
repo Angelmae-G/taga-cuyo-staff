@@ -887,14 +887,14 @@ body {
 	text-align: left; /* Align text to the left */
 }
 .close {
-	color: #6c1616;
+	color: #ff0000;
 	float: right;
 	font-size: 28px;
 	font-weight: bold;
 }
 .close:hover,
 .close:focus {
-	color: black;
+	color: rgb(106, 8, 8);
 	text-decoration: none;
 	cursor: pointer;
 }

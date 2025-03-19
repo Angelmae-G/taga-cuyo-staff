@@ -120,8 +120,8 @@ async function loadLessons() {
         lessonSnapshot.forEach((doc) => {
             const lesson = doc.data();
             const option = document.createElement('option');
-            option.value = doc.id;
-            option.textContent = `Aralin ${lesson.lesson_id}`; // Prefix with "Aralin" and add lesson_id
+            option.value = lesson.lesson_name; // Use lesson_name as the value
+            option.textContent = lesson.lesson_name || 'Unnamed Lesson'; // Display lesson_name
             lessonList.appendChild(option);
         });
     } catch (error) {
@@ -286,8 +286,8 @@ window.addWordToLesson = async function () {
         .map(input => input.value.trim())
         .filter(value => value);
 
-    // Regular expression to allow only alphabets (uppercase and lowercase)
-    const alphabetRegex = /^[A-Za-z]+$/;
+    // Regular expression to allow alphabets, spaces, and special characters but no numbers
+    const alphabetRegex = /^[A-Za-z\s\W]+$/;
 
     // Validate input fields
     if (!word || !translated || options.length < 2) {
@@ -295,14 +295,14 @@ window.addWordToLesson = async function () {
         return;
     }
 
-    // Validate that word, translated, and options only contain alphabetic characters
+    // Validate that word, translated, and options contain only valid characters
     if (!alphabetRegex.test(word) || !alphabetRegex.test(translated)) {
-        alert('Only alphabetic characters are allowed for word and translation.');
+        alert('Only letters, spaces, and special characters are allowed. Numbers are not permitted.');
         return;
     }
 
     if (!options.every(option => alphabetRegex.test(option))) {
-        alert('Only alphabetic characters are allowed for options.');
+        alert('Only letters, spaces, and special characters are allowed in options. Numbers are not permitted.');
         return;
     }
 
@@ -341,6 +341,7 @@ window.addWordToLesson = async function () {
         alert('Error adding word. Please try again.');
     }
 };
+
 
 
 // Function to fetch lesson number and name from Firestore

@@ -39,7 +39,6 @@ onAuthStateChanged(auth, async (user) => {
         dashboardContent.style.display = 'none';
     }
 });
-document.getElementById("lessonSelect").disabled = false; // Enables the select dropdown
 
 async function loadLessons() {
     const lessonSelect = document.getElementById('lessonSelect');
@@ -91,6 +90,7 @@ window.fetchWords = async function (lessonId) {
   document.querySelectorAll('.delete').forEach(deleteBtn => deleteBtn.addEventListener('click', handleDelete));
 };
 
+document.getElementById("lessonSelect").disabled = false; // Enables the select dropdown
 
 
 async function handleEdit(event) {
