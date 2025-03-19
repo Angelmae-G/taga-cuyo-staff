@@ -39,6 +39,7 @@ onAuthStateChanged(auth, async (user) => {
         dashboardContent.style.display = 'none';
     }
 });
+document.getElementById("lessonSelect").disabled = false; // Enables the select dropdown
 
 async function loadLessons() {
     const lessonSelect = document.getElementById('lessonSelect');

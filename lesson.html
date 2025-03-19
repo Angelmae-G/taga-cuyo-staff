@@ -60,9 +60,12 @@
         
         <div id="dashboardContent" style="display:none;">
             <label for="lessonSelect">Select Lesson:</label>
-            <select id="lessonSelect" onchange="fetchWords(this.value)">
-                <option value="">Select a lesson</option>
+            <select id="lessonSelect" onchange="fetchWords(this.value)" disabled>
+                <option class="disabled-option" value="" disabled selected>- Select a Lesson -</option>
+
             </select>
+        </div>
+        
             <table>
                 <thead>
                     <tr>
