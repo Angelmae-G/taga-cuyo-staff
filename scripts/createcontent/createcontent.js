@@ -117,17 +117,35 @@ async function loadLessons() {
         const lessonList = document.getElementById('lesson-select');
         lessonList.innerHTML = '<option value="">-- Select a Lesson --</option>';
 
+        let lessons = [];
+
         lessonSnapshot.forEach((doc) => {
             const lesson = doc.data();
+            if (lesson.lesson_id && lesson.lesson_name) {
+                lessons.push({
+                    id: parseInt(lesson.lesson_id, 10), // Convert to number for sorting
+                    name: lesson.lesson_name,
+                    docId: doc.id
+                });
+            }
+        });
+
+        // ✅ Sort lessons by lesson_id (numerically)
+        lessons.sort((a, b) => a.id - b.id);
+
+        // ✅ Append sorted lessons to the select dropdown
+        lessons.forEach((lesson) => {
             const option = document.createElement('option');
-            option.value = lesson.lesson_name; // Use lesson_name as the value
-            option.textContent = lesson.lesson_name || 'Unnamed Lesson'; // Display lesson_name
+            option.value = lesson.docId;
+            option.textContent = `Aralin ${lesson.id} - ${lesson.name}`;
             lessonList.appendChild(option);
         });
+
     } catch (error) {
         console.error("Error loading lessons:", error);
     }
 }
+
 
 
 // Function to load subcategories
@@ -286,8 +304,8 @@ window.addWordToLesson = async function () {
         .map(input => input.value.trim())
         .filter(value => value);
 
-    // Regular expression to allow alphabets, spaces, and special characters but no numbers
-    const alphabetRegex = /^[A-Za-z\s\W]+$/;
+    // Regular expression to allow special characters and spaces, but NOT numbers
+    const textRegex = /^[^\d]+$/; // Ensures no numbers are present
 
     // Validate input fields
     if (!word || !translated || options.length < 2) {
@@ -295,14 +313,14 @@ window.addWordToLesson = async function () {
         return;
     }
 
-    // Validate that word, translated, and options contain only valid characters
-    if (!alphabetRegex.test(word) || !alphabetRegex.test(translated)) {
-        alert('Only letters, spaces, and special characters are allowed. Numbers are not permitted.');
+    // Validate that word, translated, and options do NOT contain numbers
+    if (!textRegex.test(word) || !textRegex.test(translated)) {
+        alert('Numbers are not allowed for word and translation.');
         return;
     }
 
-    if (!options.every(option => alphabetRegex.test(option))) {
-        alert('Only letters, spaces, and special characters are allowed in options. Numbers are not permitted.');
+    if (!options.every(option => textRegex.test(option))) {
+        alert('Numbers are not allowed for options.');
         return;
     }
 
@@ -341,7 +359,6 @@ window.addWordToLesson = async function () {
         alert('Error adding word. Please try again.');
     }
 };
-
 
 
 // Function to fetch lesson number and name from Firestore
