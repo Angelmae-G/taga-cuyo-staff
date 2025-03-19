@@ -210,12 +210,18 @@ const getImageUrl = async (imagePath) => {
             return;
         }
 
-        // Prevent submission if the word, translation, or options contain numbers
-        const numberRegex = /\d/;
-        if (numberRegex.test(updatedWord) || numberRegex.test(updatedTranslation) || updatedOptions.some(opt => numberRegex.test(opt))) {
-            alert("Numbers are not allowed in words, translations, or options.");
-            return;
-        }
+        // Regular expression: Allow ONLY special characters, disallow spaces and numbers
+        const validCharsRegex = /^[a-zA-Z!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]+$/;
+        if (!validCharsRegex.test(updatedWord) || !validCharsRegex.test(updatedTranslation)) {
+          alert("Only letters and special characters are allowed. Spaces and numbers are not allowed.");
+          return;
+      }
+      
+      if (!updatedOptions.every(option => validCharsRegex.test(option))) {
+          alert("Only letters and special characters are allowed in options. Spaces and numbers are not allowed.");
+          return;
+      }
+      
 
         const originalWord = wordCell.dataset.originalWord;
         const originalTranslation = translatedCell.dataset.originalTranslation;
@@ -257,6 +263,7 @@ const getImageUrl = async (imagePath) => {
                 translated: updatedTranslation,
                 image_path: imagePath,
                 read: false,
+                dismissed: false,
                 isApprove: false,
                 exactLocation: `categories/${category_name}/subcategories/${subcategory_name}/words/${word_id}`
             };
