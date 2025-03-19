@@ -69,7 +69,7 @@ window.loadCategories = async function () {
 
 window.loadSubcategories = async function (category_id) {
     const subcategorySelect = document.getElementById('subcategorySelect');
-    subcategorySelect.innerHTML = '<option value="" disabled selected>- Select a SubCategory -</option>';
+    subcategorySelect.innerHTML = '<option value="" disabled selected>- Select a Subcategory -</option>';
     subcategorySelect.disabled = !category_id;
 
     if (category_id) {
