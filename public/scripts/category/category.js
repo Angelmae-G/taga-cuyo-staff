@@ -210,17 +210,20 @@ const getImageUrl = async (imagePath) => {
             return;
         }
 
-        // Regular expression: Allow ONLY special characters, disallow spaces and numbers
-        const validCharsRegex = /^[a-zA-Z!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]+$/;
-        if (!validCharsRegex.test(updatedWord) || !validCharsRegex.test(updatedTranslation)) {
-          alert("Only letters and special characters are allowed. Spaces and numbers are not allowed.");
-          return;
-      }
-      
-      if (!updatedOptions.every(option => validCharsRegex.test(option))) {
-          alert("Only letters and special characters are allowed in options. Spaces and numbers are not allowed.");
-          return;
-      }
+        // Regular e
+       // Regular expression: Allow ONLY letters, spaces, and special characters; disallow numbers
+const validCharsRegex = /^[a-zA-Z!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~ ]+$/;
+
+if (!validCharsRegex.test(updatedWord) || !validCharsRegex.test(updatedTranslation)) {
+    alert("Only letters, spaces, and special characters are allowed. Numbers are not allowed.");
+    return;
+}
+
+if (!updatedOptions.every(option => validCharsRegex.test(option))) {
+    alert("Only letters, spaces, and special characters are allowed in options. Numbers are not allowed.");
+    return;
+}
+
       
 
         const originalWord = wordCell.dataset.originalWord;

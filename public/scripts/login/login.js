@@ -15,8 +15,14 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
 // Handle Login
-document.getElementById('loginForm').addEventListener('submit', async (e) => {
+const loginForm = document.getElementById('loginForm');
+const loginButton = document.getElementById('login_submit');
+
+loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
+    loginButton.disabled = true; // Disable the button to prevent multiple clicks
+    loginButton.innerText = "Verifying...";
+    
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
 
@@ -27,10 +33,15 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     } catch (error) {
         document.getElementById('error-message').innerText = "Incorrect email/password.";
     }
+    
+    loginButton.disabled = false; // Re-enable the button after login attempt
+    loginButton.innerText = "Login";
 });
 
-// Handle Forgot Password Directly Without Modal
-document.getElementById('forgotPassword').addEventListener('click', async () => {
+// Handle Forgot Password
+const forgotPasswordBtn = document.getElementById('forgotPassword');
+
+forgotPasswordBtn.addEventListener('click', async () => {
     const email = document.getElementById('email').value;
 
     if (!email) {
@@ -47,6 +58,7 @@ document.getElementById('forgotPassword').addEventListener('click', async () => 
     }
 });
 
+// Toggle Password Visibility
 document.getElementById("togglePassword").addEventListener("click", function () {
     let passwordInput = document.getElementById("password");
     let icon = this;
