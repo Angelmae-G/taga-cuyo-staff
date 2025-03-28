@@ -43,7 +43,7 @@ document.getElementById('logoutButton').addEventListener('click', async (event) 
     try {
         await signOut(auth);
         alert('You have been logged out successfully.');
-        window.location.href = "staff_login.html";
+        window.location.href = "index.html";
     } catch (error) {
         console.error('Error logging out:', error);
         alert('Error logging out. Please try again.');

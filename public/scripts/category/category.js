@@ -46,7 +46,7 @@ onAuthStateChanged(auth, async (user) => {
 
         await loadCategories();
     } else {
-        window.location.href = "staff_login.html";
+        window.location.href = "index.html";
     }
 });
 

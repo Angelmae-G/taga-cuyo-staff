@@ -48,7 +48,7 @@ onAuthStateChanged(auth, async (user) => {
         fetchRecentActivities();
     } else {
     console.log("No user is signed in.");
-    window.location.href = "staff_login.html"; // Redirect to login page if not signed in
+    window.location.href = "index.html"; // Redirect to login page if not signed in
 }
 });
 

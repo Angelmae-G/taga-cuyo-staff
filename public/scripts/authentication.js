@@ -28,7 +28,7 @@ onAuthStateChanged(auth, async (user) => {
     if (!user) {
         console.log("❌ No user signed in. Redirecting...");
         alert("Please log in to continue.");
-        window.location.href = "staff_login.html";
+        window.location.href = "index.html";
         return;
     }
 
@@ -57,7 +57,7 @@ onAuthStateChanged(auth, async (user) => {
 
         } else {
             alert("User data not found.");
-            window.location.href = "staff_login.html";
+            window.location.href = "index.html";
         }
     } catch (error) {
         console.error("❌ Error fetching user data:", error);
@@ -73,7 +73,7 @@ export async function logoutUser() {
         await updateDoc(userRef, { isActive: false });
         await signOut(auth);
         alert('✅ Successfully logged out.');
-        window.location.href = "staff_login.html";
+        window.location.href = "index.html";
     } catch (error) {
         console.error('❌ Error logging out:', error);
         alert('Error logging out. Please try again.');

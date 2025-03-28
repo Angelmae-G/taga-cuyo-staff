@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Wait for auth state to update before redirecting
                 onAuthStateChanged(auth, (user) => {
                     if (!user) {
-                        window.location.href = "staff_login.html"; // Redirect after confirming sign-out
+                        window.location.href = "index.html"; // Redirect after confirming sign-out
                     }
                 });
             } catch (error) {

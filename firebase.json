@@ -1,0 +1,11 @@
+{
+  "hosting": {
+    "site": "staff-tagacuyo",
+    "public": "public",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  }
+}

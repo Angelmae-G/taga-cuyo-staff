@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STAFF LOGIN</title>
+   
+    <link rel="stylesheet" href="css/login.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" crossorigin="anonymous">
+    
+    <script type="module" src="scripts/login/login.js"></script>
+</head>
+<body>
+    <div class="flex-r container">
+        <div class="flex-r login-wrapper">
+            <div class="login-text">
+                <div class="logo">
+                    <img id="logo" src="images/logo.png" />
+                </div>
+                <h1>Sign in</h1>
+
+                <form class="flex-c" id="loginForm">
+                    <div class="input-box">
+                        <span class="label"></span>
+                        <div class="flex-r input">
+                            <input type="text" id="email" placeholder="name@email.com" required>
+                            
+                        </div>
+                    </div>
+
+                    <div class="input-box">
+                        <span class="label"></span>
+                        <div class="flex-r input">
+                            <input type="password" id="password" placeholder="Password" required>
+                            <i class="fas fa-eye-slash toggle-password" id="togglePassword"></i>                        
+                        </div>
+                    </div>
+
+                    <a href="#" id="forgotPassword" class="forgot-password">Forgot Password?</a>
+                    <div class="center-container">
+                        <button type ="submit" id="login_submit" class="btn">Login</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+  
+</body>
+</html>

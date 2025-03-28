@@ -10,20 +10,16 @@
 	font-size: 24px;
   }
   
-  
   .notification-dot {
 	position: absolute;
-	top: -5px;
-	right: -5px;
+	top: 0;
+	right: 0;
 	width: 10px;
 	height: 10px;
-	background-color: red;
+	background-color: rgb(0, 26, 255);
 	border-radius: 50%;
-	display: none; /* Initially hidden */
+	display: none; /* Hidden by default */
   }
-  
-  
-  
   
   .dropdown {
 	display: none;
@@ -79,34 +75,6 @@
 	padding: 0;
 	box-sizing: border-box;
 }
-.icon-container {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-}
-
-.report-icon {
-    background-color: #ff4757;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 50px;
-    cursor: pointer;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.report-icon:hover {
-    background-color: #e84118;
-}
-
-.hidden {
-    display: none;
-}
-
-
 
 :root {
 	--grey: #F1F0F6;
@@ -124,10 +92,16 @@
 html {
 	overflow-x: hidden;
 }
-
 body {
-	background: var(--grey);
-	overflow-x: hidden;
+    background: linear-gradient(270deg, #c0c3c8, #dde0e4, #a8abaf);
+    background-size: 400% 400%;
+    overflow-x: hidden;
+}
+
+@keyframes gradientBG {
+    100% { background-position: 100% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 100% 50%; }
 }
 
 a {
@@ -149,23 +123,22 @@ li {
     display: block;
 }
 
-
-
-
-
-/* SIDEBAR */
 #sidebar {
 	position: fixed;
 	max-width: 260px;
 	width: 100%;
-	background: var(--light);
+    background: linear-gradient(180deg, #1E293B, #334155);
+    background-size: 400% 400%;
+    overflow-x: hidden;
 	top: 0;
 	left: 0;
 	height: 100%;
 	overflow-y: auto;
 	scrollbar-width: none;
 	transition: all .3s ease;
-	z-index: 200;
+	z-dashboard: 200;
+    color: #fff;
+
 }
 #sidebar.hide {
 	max-width: 60px;
@@ -177,20 +150,33 @@ li {
 	display: none;
 }
 #sidebar .brand {
-	font-size: 24px;
-	display: flex;
-	align-items: center;
-	height: 64px;
-	font-weight: 700;
-	color: var(--blue);
-	position: sticky;
-	top: 0;
-	left: 0;
-	z-index: 100;
-	background: var(--light);
-	transition: all .3s ease;
-	padding: 0 6px;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px; /* Adds space between logo and text */
+    height: 80px;
+    font-weight: 700;
+    color: #fff;
+    background: linear-gradient(180deg, #1E293B, #334155);
+    transition: all 0.3s ease;
+    padding: 10px 15px;
+    border-radius: 10px;
 }
+
+/* Fix logo alignment */
+#sidebar .brand img {
+    width: 75px; /* Adjusted for better proportion */
+    height: 75x;
+    object-fit: contain;
+}
+
+/* Hover Effect */
+#sidebar .brand:hover {
+    background: linear-gradient(180deg, #334155, #1E293B);
+    transform: scale(1.05);
+}
+
 #sidebar .icon {
 	min-width: 48px;
 	display: flex;
@@ -217,7 +203,7 @@ li {
 	display: flex;
 	align-items: center;
 	font-size: 14px;
-	color: var(--dark);
+	color:#f9e7e7;
 	padding: 12px 16px 12px 0;
 	transition: all .3s ease;
 	border-radius: 10px;
@@ -225,7 +211,7 @@ li {
 	white-space: nowrap;
 }
 #sidebar .side-menu > li > a:hover {
-	background: var(--grey);
+	background:#1775F1;
 }
 #sidebar .side-menu > li > a.active .icon-right {
 	transform: rotateZ(90deg);
@@ -241,10 +227,9 @@ li {
 	text-transform: uppercase;
 	font-weight: 700;
 	color: var(--dark-grey);
-	transition: all .3s ease;
 	white-space: nowrap;
 }
-#sidebar.hide:hover .divider {
+#sidebar.hide:hover .divider { 
 	text-align: left;
 }
 #sidebar.hide .divider {
@@ -260,7 +245,7 @@ li {
 	max-height: 1000px;
 }
 #sidebar .side-dropdown a:hover {
-	color: var(--blue);
+	color:#46a6e6;
 }
 #sidebar .ads {
 	width: 100%;
@@ -301,10 +286,7 @@ li {
 #sidebar .ads .wrapper p span {
 	font-weight: 700;
 }
-/* SIDEBAR * /
-
-
-
+/* SIDEBAR */
 
 
 
@@ -314,14 +296,18 @@ li {
 	width: calc(100% - 260px);
 	left: 260px;
 	transition: all .3s ease;
+	background: linear-gradient(0, #e6ecf8, #dde0e4, #dde2e9);
+	animation: gradientBG 15s ease infinite;
+	height: 720px;
 }
 #sidebar.hide + #content {
 	width: calc(100% - 60px);
 	left: 60px;
+
 }
 /* NAVBAR */
 nav {
-	background: var(--light);
+    background: #f1f1f3;
 	height: 64px;
 	padding: 0 20px;
 	display: flex;
@@ -330,7 +316,7 @@ nav {
 	position: sticky;
 	top: 0;
 	left: 0;
-	z-index: 100;
+	z-dashboard: 100;
 }
 nav .toggle-sidebar {
 	font-size: 18px;
@@ -433,48 +419,6 @@ nav .profile .profile-link a:hover {
 	background: var(--grey);
 }
 /* NAVBAR */
-.profile {
-    position: relative;
-    display: inline-block;
-}
-
-.profile-link {
-    display: none;
-    position: absolute;
-    top: 100%; /* Dropdown will appear below the image */
-    right: 0;
-    background-color: #fff;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    z-index: 1000;
-}
-
-.profile-link li {
-    border-bottom: 1px solid #ddd;
-}
-
-.profile-link li:last-child {
-    border-bottom: none;
-}
-
-.profile-link li a {
-    display: block;
-    padding: 10px 15px;
-    color: #333;
-    text-decoration: none;
-    transition: background-color 0.3s;
-}
-
-.profile-link li a:hover {
-    background-color: #f0f0f0;
-}
-
-.profile:hover .profile-link {
-    display: block;
-}
 
 
 
@@ -808,7 +752,7 @@ body {
 /* Optional: Set minimum widths for each column to prevent compression */
 .activity-table th:nth-child(1), 
 .activity-table td:nth-child(1) {
-    min-width: 200px; /* Minimum width for Activity column */
+    min-width: 300px; /* Minimum width for Activity column */
 }
 
 .activity-table th:nth-child(2), 
@@ -883,18 +827,18 @@ body {
 	margin: 15% auto;
 	padding: 20px;
 	border: 1px solid #888;
-	width: 50%;
+	width: 60%;
 	text-align: left; /* Align text to the left */
 }
 .close {
-	color: #ff0000;
+	color: #6c1616;
 	float: right;
 	font-size: 28px;
 	font-weight: bold;
 }
 .close:hover,
 .close:focus {
-	color: rgb(106, 8, 8);
+	color: black;
 	text-decoration: none;
 	cursor: pointer;
 }
@@ -905,5 +849,56 @@ body {
 .activity-table tbody tr:hover {
     background-color: rgb(237, 246, 249); /* Light blue background on hover */
     cursor: pointer; /* Change cursor to pointer */
+}
+
+
+body {
+	font-family: 'Arial', sans-serif;
+}
+table {
+	width: 100%;
+	border-collapse: collapse;
+}
+th, td {
+	padding: 10px;
+	text-align: left;
+	border: 1px solid #d3d3d3;
+}
+th {
+	background-color: #4a90e2;
+	color: white;
+	font-weight: bold;
+}
+td {
+	color: #333;
+}
+.action-icon {
+	color: red;
+	font-size: 20px;
+	text-align: center;
+}
+.date-time {
+	font-style: italic;
+	color: #666;
+}
+.status-approved {
+    background-color: #4CAF50; /* Green */
+    color: white;
+    padding: 5px;
+    border-radius: 3px;
+}
+
+.status-dismissed {
+    background-color: #f44336; /* Red */
+    color: white;
+    padding: 5px;
+    border-radius: 3px;
+}
+
+.status-pending {
+    background-color: #ffeb3b; /* Yellow */
+    color: black;
+    padding: 5px;
+    border-radius: 3px;
 }
 

@@ -1,74 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap');
 
-.notification-wrapper {
-	position: relative;
-	display: inline-block;
-	cursor: pointer;
-  }
-  
-  .notification-icon {
-	font-size: 24px;
-  }
-  
-  .notification-dot {
-	position: absolute;
-	top: 0;
-	right: 0;
-	width: 10px;
-	height: 10px;
-	background-color: rgb(255, 0, 0);
-	border-radius: 50%;
-	display: none; /* Hidden by default */
-  }
-  
-  .dropdown {
-	display: none;
-	position: absolute;
-	top: 30px;
-	right: 0;
-	background-color: #ffffff; /* Light background */
-	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-	border-radius: 5px;
-	padding: 10px;
-	z-index: 10;
-	max-height: 300px; /* Limit the height */
-	overflow-y: auto; /* Enable vertical scroll */
-	color: #000; /* Black font color */
-  }
-  
-  /* Show the dropdown when active */
-  .dropdown.active {
-	display: block;
-  }
-  
-  /* Customize the scrollbar */
-  .dropdown::-webkit-scrollbar {
-	width: 8px;
-	background-color: #ffffff; /* Light scrollbar track */
-	border-radius: 5px;
-  }
-  
-  .dropdown::-webkit-scrollbar-thumb {
-	background-color: #404ecb; /* Black scrollbar thumb */
-	border-radius: 5px; /* Rounded scrollbar handle */
-	transition: background-color 0.3s ease; /* Smooth transition */
-  }
-  
-  .dropdown::-webkit-scrollbar-thumb:hover {
-	background-color: #cbf0fe; /* Sky blue on hover */
-  }
-  
-  .dropdown p {
-	margin: 5px 0; /* Spacing between items */
-	padding: 5px;
-	border-radius: 3px;
-	transition: background-color 0.3s ease; /* Smooth hover effect */
-  }
-  
-  .dropdown p:hover {
-	background-color: #b3e1f3; /* Sky blue background on hover */
-  }
-  
+
 * {
 	font-family: 'Open Sans', sans-serif;
 	margin: 0;
@@ -94,10 +26,14 @@ html {
 }
 
 body {
-	background: var(--grey);
-	overflow-x: hidden;
+    background: linear-gradient(270deg, #c0c3c8, #dde0e4, #a8abaf);
 }
 
+@keyframes gradientBG {
+    100% { background-position: 100% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 100% 50%; }
+}
 a {
 	text-decoration: none;
 }
@@ -118,22 +54,22 @@ li {
 }
 
 
-
-
-
-/* SIDEBAR */
 #sidebar {
 	position: fixed;
 	max-width: 260px;
 	width: 100%;
-	background: var(--light);
+    background: linear-gradient(180deg, #1E293B, #334155);
+    background-size: 400% 400%;
+    overflow-x: hidden;
 	top: 0;
 	left: 0;
 	height: 100%;
 	overflow-y: auto;
 	scrollbar-width: none;
 	transition: all .3s ease;
-	z-index: 200;
+	z-dashboard: 200;
+    color: #fff;
+
 }
 #sidebar.hide {
 	max-width: 60px;
@@ -141,22 +77,37 @@ li {
 #sidebar.hide:hover {
 	max-width: 260px;
 }
-
-#sidebar .brand {
-	font-size: 24px;
-	display: flex;
-	align-items: center;
-	height: 64px;
-	font-weight: 700;
-	color: var(--blue);
-	position: sticky;
-	top: 0;
-	left: 0;
-	z-index: 100;
-	background: var(--light);
-	transition: all .3s ease;
-	padding: 0 6px;
+#sidebar::-webkit-scrollbar {
+	display: none;
 }
+#sidebar .brand {
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px; /* Adds space between logo and text */
+    height: 80px;
+    font-weight: 700;
+    color: #fff;
+    background: linear-gradient(180deg, #1E293B, #334155);
+    transition: all 0.3s ease;
+    padding: 10px 15px;
+    border-radius: 10px;
+}
+
+/* Fix logo alignment */
+#sidebar .brand img {
+    width: 75px; /* Adjusted for better proportion */
+    height: 75x;
+    object-fit: contain;
+}
+
+/* Hover Effect */
+#sidebar .brand:hover {
+    background: linear-gradient(180deg, #334155, #1E293B);
+    transform: scale(1.05);
+}
+
 #sidebar .icon {
 	min-width: 48px;
 	display: flex;
@@ -183,7 +134,7 @@ li {
 	display: flex;
 	align-items: center;
 	font-size: 14px;
-	color: var(--dark);
+	color:#f9e7e7;
 	padding: 12px 16px 12px 0;
 	transition: all .3s ease;
 	border-radius: 10px;
@@ -191,7 +142,7 @@ li {
 	white-space: nowrap;
 }
 #sidebar .side-menu > li > a:hover {
-	background: var(--grey);
+	background:#1775F1;
 }
 #sidebar .side-menu > li > a.active .icon-right {
 	transform: rotateZ(90deg);
@@ -207,10 +158,9 @@ li {
 	text-transform: uppercase;
 	font-weight: 700;
 	color: var(--dark-grey);
-	transition: all .3s ease;
 	white-space: nowrap;
 }
-#sidebar.hide:hover .divider {
+#sidebar.hide:hover .divider { 
 	text-align: left;
 }
 #sidebar.hide .divider {
@@ -226,7 +176,7 @@ li {
 	max-height: 1000px;
 }
 #sidebar .side-dropdown a:hover {
-	color: var(--blue);
+	color:#46a6e6;
 }
 #sidebar .ads {
 	width: 100%;
@@ -267,19 +217,14 @@ li {
 #sidebar .ads .wrapper p span {
 	font-weight: 700;
 }
-/* SIDEBAR * /
-
-
-
-
-
-
+/* SIDEBAR */
 /* CONTENT */
 #content {
 	position: relative;
 	width: calc(100% - 260px);
 	left: 260px;
-	transition: all .3s ease;
+	background: linear-gradient(270deg, #e6ecf8, #dde0e4, #dde2e9);
+
 }
 #sidebar.hide + #content {
 	width: calc(100% - 60px);
@@ -287,7 +232,7 @@ li {
 }
 /* NAVBAR */
 nav {
-	background: var(--light);
+    background: #f1f1f3;
 	height: 64px;
 	padding: 0 20px;
 	display: flex;
@@ -296,7 +241,7 @@ nav {
 	position: sticky;
 	top: 0;
 	left: 0;
-	z-index: 100;
+	z-dashboard: 100;
 }
 nav .toggle-sidebar {
 	font-size: 18px;
@@ -352,7 +297,12 @@ nav .nav-link .badge {
 	font-size: 10px;
 	font-weight: 700;
 }
-
+nav .divider {
+	width: 1px;
+	background: var(--grey);
+	height: 12px;
+	display: block;
+}
 nav .profile {
 	position: relative;
 }
@@ -678,11 +628,7 @@ main .btn-send:hover {
 .side-dropdown.active {
 	max-height: 500px; /* Arbitrary height, adjust as needed */
 }
-body {
-	font-family: Arial, sans-serif;
-	background-color: #f4f4f4;
-	color: #333;
-}
+
 .container {
 	max-width: 800px;
 	margin: 20px auto;
@@ -710,11 +656,10 @@ body {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
-    table-layout: auto; /* Allows the table to adjust based on content */
 }
 
 .activity-table th, .activity-table td {
-    padding: 10px; /* Increased padding for better spacing */
+    padding: 15px; /* Increased padding for better spacing */
     text-align: left;
     border-bottom: 8px solid #d3d3d3;
 }
@@ -738,14 +683,11 @@ body {
 
 .activity-table th:nth-child(3), 
 .activity-table td:nth-child(3) {
-    min-width: 90px; /* Minimum width for Executed by column */
+    min-width: 160px; /* Minimum width for Executed by column */
 }
 
 .status-success {
     color: green;
-}
-.status-deleted {
-    color: rgb(243, 43, 60);
 }
 
 .status-decline {
@@ -788,101 +730,4 @@ body {
 }
 .profile-details p {
 	margin: 5px 0; /* Space between text lines */
-}
-   /* Basic styling for modal */
-   .modal {
-	display: none; 
-	position: fixed; 
-	z-index: 1; 
-	left: 90;
-	top: 0;
-	width: 90%;
-	height: 100%;
-	background-color: rgba(0,0,0,0.4);
-}
-.modal-content {
-	background-color: #fefefe;
-	margin: 15% auto;
-	padding: 20px;
-	border: 1px solid #888;
-	width: 60%;
-	text-align: left; /* Align text to the left */
-}
-.close {
-	color: #6c1616;
-	float: right;
-	font-size: 28px;
-	font-weight: bold;
-}
-.close:hover,
-.close:focus {
-	color: black;
-	text-decoration: none;
-	cursor: pointer;
-}
-.activity-table tbody tr {
-    transition: background-color 0.2s ease; /* Smooth transition */
-}
-
-.activity-table tbody tr:hover {
-    background-color: rgb(237, 246, 249); /* Light blue background on hover */
-    cursor: pointer; /* Change cursor to pointer */
-}
-
-
-body {
-	font-family: 'Arial', sans-serif;
-}
-table {
-	width: 100%;
-	border-collapse: collapse;
-}
-th, td {
-	padding: 10px;
-	text-align: left;
-	border: 1px solid #d3d3d3;
-}
-th {
-	background-color: #4a90e2;
-	color: white;
-	font-weight: bold;
-}
-td {
-	color: #333;
-}
-.action-icon {
-	color: red;
-	font-size: 20px;
-	text-align: center;
-}
-.date-time {
-	font-style: italic;
-	color: #666;
-}
-.status-approved {
-    background-color: #4CAF50; /* Green */
-    color: white;
-    padding: 5px;
-    border-radius: 3px;
-}
-
-.status-dismissed {
-    background-color: #938e8e; /* Red */
-    color: white;
-    padding: 5px;
-    border-radius: 3px;
-}
-
-.status-pending {
-    background-color: #ffeb3b; /* Yellow */
-    color: black;
-    padding: 5px;
-    border-radius: 3px;
-}
-
-.status-deleted {
-    background-color: #ff0d00; /* Yellow */
-    color: rgb(255, 255, 255);
-    padding: 5px;
-    border-radius: 3px;
 }

@@ -137,14 +137,18 @@ html {
 	overflow-x: hidden;
 }
 
+
 body {
-	display: flex;
-      justify-content: left;
-      align-items: left;
-      min-height: 100vh;
-      background-color: #f3f4f6;
-      padding: 20px;
-    }
+    background: linear-gradient(270deg, #c0c3c8, #dde0e4, #a8abaf);
+    background-size: 400% 400%;
+    overflow-x: hidden;
+}
+
+@keyframes gradientBG {
+    100% { background-position: 100% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 100% 50%; }
+}
 
 a {
 	text-decoration: none;
@@ -165,13 +169,6 @@ li {
     display: block;
 }
 
-
-body {
-	font-family: Arial, sans-serif;
-	margin: 0;
-	padding: 0;
-	background-color: #f9f9f9;
-}
 h1 {
 	font-size: 1.5rem;
       color: #333;
@@ -317,19 +314,22 @@ th {
     margin-bottom: 20px;
 }
 
-/* SIDEBAR */
 #sidebar {
 	position: fixed;
 	max-width: 260px;
 	width: 100%;
-	background: var(--light);
+    background: linear-gradient(180deg, #1E293B, #334155);
+    background-size: 400% 400%;
+    overflow-x: hidden;
 	top: 0;
 	left: 0;
 	height: 100%;
 	overflow-y: auto;
 	scrollbar-width: none;
 	transition: all .3s ease;
-	z-index: 200;
+	z-dashboard: 200;
+    color: #fff;
+
 }
 #sidebar.hide {
 	max-width: 60px;
@@ -341,20 +341,33 @@ th {
 	display: none;
 }
 #sidebar .brand {
-	font-size: 24px;
-	display: flex;
-	align-items: center;
-	height: 64px;
-	font-weight: 700;
-	color: var(--blue);
-	position: sticky;
-	top: 0;
-	left: 0;
-	z-index: 100;
-	background: var(--light);
-	transition: all .3s ease;
-	padding: 0 6px;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px; /* Adds space between logo and text */
+    height: 80px;
+    font-weight: 700;
+    color: #fff;
+    background: linear-gradient(180deg, #1E293B, #334155);
+    transition: all 0.3s ease;
+    padding: 10px 15px;
+    border-radius: 10px;
 }
+
+/* Fix logo alignment */
+#sidebar .brand img {
+    width: 75px; /* Adjusted for better proportion */
+    height: 75x;
+    object-fit: contain;
+}
+
+/* Hover Effect */
+#sidebar .brand:hover {
+    background: linear-gradient(180deg, #334155, #1E293B);
+    transform: scale(1.05);
+}
+
 #sidebar .icon {
 	min-width: 48px;
 	display: flex;
@@ -381,7 +394,7 @@ th {
 	display: flex;
 	align-items: center;
 	font-size: 14px;
-	color: var(--dark);
+	color:#f9e7e7;
 	padding: 12px 16px 12px 0;
 	transition: all .3s ease;
 	border-radius: 10px;
@@ -389,7 +402,7 @@ th {
 	white-space: nowrap;
 }
 #sidebar .side-menu > li > a:hover {
-	background: var(--grey);
+	background:#1775F1;
 }
 #sidebar .side-menu > li > a.active .icon-right {
 	transform: rotateZ(90deg);
@@ -405,10 +418,9 @@ th {
 	text-transform: uppercase;
 	font-weight: 700;
 	color: var(--dark-grey);
-	transition: all .3s ease;
 	white-space: nowrap;
 }
-#sidebar.hide:hover .divider {
+#sidebar.hide:hover .divider { 
 	text-align: left;
 }
 #sidebar.hide .divider {
@@ -424,7 +436,7 @@ th {
 	max-height: 1000px;
 }
 #sidebar .side-dropdown a:hover {
-	color: var(--blue);
+	color:#46a6e6;
 }
 #sidebar .ads {
 	width: 100%;
@@ -465,19 +477,17 @@ th {
 #sidebar .ads .wrapper p span {
 	font-weight: 700;
 }
-/* SIDEBAR * /
+/* SIDEBAR */
 
-
-
-
-
-
-/* CONTENT */
 #content {
 	position: relative;
 	width: calc(100% - 260px);
 	left: 260px;
 	transition: all .3s ease;
+    background: linear-gradient(270deg, #e6ecf8, #dde0e4, #dde2e9);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+    overflow-x: hidden;
 }
 #sidebar.hide + #content {
 	width: calc(100% - 60px);
@@ -485,7 +495,7 @@ th {
 }
 /* NAVBAR */
 nav {
-	background: var(--light);
+    background: #f1f1f3;
 	height: 64px;
 	padding: 0 20px;
 	display: flex;
@@ -494,7 +504,7 @@ nav {
 	position: sticky;
 	top: 0;
 	left: 0;
-	z-index: 100;
+	z-dashboard: 100;
 }
 nav .toggle-sidebar {
 	font-size: 18px;
@@ -1046,7 +1056,10 @@ body {
     text-align: left; 
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Adds a slight shadow */
     border-radius: 8px;
-    position: relative;
+    position: absolute;
+	margin-top: 150px;
+	margin-left:500px;
+	max-height: 700px;
 }
 
 /* Close Button */

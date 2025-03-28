@@ -16,7 +16,7 @@
 	right: 0;
 	width: 10px;
 	height: 10px;
-	background-color: rgb(0, 26, 255);
+	background-color: rgb(255, 0, 0);
 	border-radius: 50%;
 	display: none; /* Hidden by default */
   }
@@ -93,9 +93,17 @@ html {
 	overflow-x: hidden;
 }
 
+
 body {
-	background: var(--grey);
-	overflow-x: hidden;
+    background: linear-gradient(270deg, #c0c3c8, #dde0e4, #a8abaf);
+    background-size: 400% 400%;
+    overflow-x: hidden;
+}
+
+@keyframes gradientBG {
+    100% { background-position: 100% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 100% 50%; }
 }
 
 a {
@@ -118,22 +126,22 @@ li {
 }
 
 
-
-
-
-/* SIDEBAR */
 #sidebar {
 	position: fixed;
 	max-width: 260px;
 	width: 100%;
-	background: var(--light);
+    background: linear-gradient(180deg, #1E293B, #334155);
+    background-size: 400% 400%;
+    overflow-x: hidden;
 	top: 0;
 	left: 0;
 	height: 100%;
 	overflow-y: auto;
 	scrollbar-width: none;
 	transition: all .3s ease;
-	z-index: 200;
+	z-dashboard: 200;
+    color: #fff;
+
 }
 #sidebar.hide {
 	max-width: 60px;
@@ -145,20 +153,33 @@ li {
 	display: none;
 }
 #sidebar .brand {
-	font-size: 24px;
-	display: flex;
-	align-items: center;
-	height: 64px;
-	font-weight: 700;
-	color: var(--blue);
-	position: sticky;
-	top: 0;
-	left: 0;
-	z-index: 100;
-	background: var(--light);
-	transition: all .3s ease;
-	padding: 0 6px;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px; /* Adds space between logo and text */
+    height: 80px;
+    font-weight: 700;
+    color: #fff;
+    background: linear-gradient(180deg, #1E293B, #334155);
+    transition: all 0.3s ease;
+    padding: 10px 15px;
+    border-radius: 10px;
 }
+
+/* Fix logo alignment */
+#sidebar .brand img {
+    width: 75px; /* Adjusted for better proportion */
+    height: 75x;
+    object-fit: contain;
+}
+
+/* Hover Effect */
+#sidebar .brand:hover {
+    background: linear-gradient(180deg, #334155, #1E293B);
+    transform: scale(1.05);
+}
+
 #sidebar .icon {
 	min-width: 48px;
 	display: flex;
@@ -185,7 +206,7 @@ li {
 	display: flex;
 	align-items: center;
 	font-size: 14px;
-	color: var(--dark);
+	color:#f9e7e7;
 	padding: 12px 16px 12px 0;
 	transition: all .3s ease;
 	border-radius: 10px;
@@ -193,7 +214,7 @@ li {
 	white-space: nowrap;
 }
 #sidebar .side-menu > li > a:hover {
-	background: var(--grey);
+	background:#1775F1;
 }
 #sidebar .side-menu > li > a.active .icon-right {
 	transform: rotateZ(90deg);
@@ -209,10 +230,9 @@ li {
 	text-transform: uppercase;
 	font-weight: 700;
 	color: var(--dark-grey);
-	transition: all .3s ease;
 	white-space: nowrap;
 }
-#sidebar.hide:hover .divider {
+#sidebar.hide:hover .divider { 
 	text-align: left;
 }
 #sidebar.hide .divider {
@@ -228,7 +248,7 @@ li {
 	max-height: 1000px;
 }
 #sidebar .side-dropdown a:hover {
-	color: var(--blue);
+	color:#46a6e6;
 }
 #sidebar .ads {
 	width: 100%;
@@ -269,7 +289,7 @@ li {
 #sidebar .ads .wrapper p span {
 	font-weight: 700;
 }
-/* SIDEBAR * /
+/* SIDEBAR */
 
 
 
@@ -282,6 +302,8 @@ li {
 	width: calc(100% - 260px);
 	left: 260px;
 	transition: all .3s ease;
+	background: linear-gradient(270deg, #e6ecf8, #dde0e4, #dde2e9);
+
 }
 #sidebar.hide + #content {
 	width: calc(100% - 60px);
@@ -289,7 +311,7 @@ li {
 }
 /* NAVBAR */
 nav {
-	background: var(--light);
+    background: #f1f1f3;
 	height: 64px;
 	padding: 0 20px;
 	display: flex;
@@ -298,7 +320,7 @@ nav {
 	position: sticky;
 	top: 0;
 	left: 0;
-	z-index: 100;
+	z-dashboard: 100;
 }
 nav .toggle-sidebar {
 	font-size: 18px;
@@ -354,12 +376,7 @@ nav .nav-link .badge {
 	font-size: 10px;
 	font-weight: 700;
 }
-nav .divider {
-	width: 1px;
-	background: var(--grey);
-	height: 12px;
-	display: block;
-}
+
 nav .profile {
 	position: relative;
 }
@@ -751,6 +768,9 @@ body {
 .status-success {
     color: green;
 }
+.status-deleted {
+    color: rgb(243, 43, 60);
+}
 
 .status-decline {
     color: red;
@@ -871,7 +891,7 @@ td {
 }
 
 .status-dismissed {
-    background-color: #f44336; /* Red */
+    background-color: #938e8e; /* Red */
     color: white;
     padding: 5px;
     border-radius: 3px;
@@ -884,3 +904,9 @@ td {
     border-radius: 3px;
 }
 
+.status-deleted {
+    background-color: #ff0d00; /* Yellow */
+    color: rgb(255, 255, 255);
+    padding: 5px;
+    border-radius: 3px;
+}
