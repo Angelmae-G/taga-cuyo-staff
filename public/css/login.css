@@ -30,6 +30,24 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
+.input-box {
+    position: relative;
+    width: 250px;
+}
+.input-box input {
+    width: 100%;
+    padding: 10px;
+    padding-right: 40px; /* Space for the eye icon */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+}
 .background-elements {
     position: absolute;
     top: 0;

@@ -30,7 +30,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
 });
 
 // Handle Forgot Password Directly Without Modal
-document.getElementById('forgot-password-link').addEventListener('click', async () => {
+document.getElementById('forgotPassword').addEventListener('click', async () => {
     const email = document.getElementById('email').value;
 
     if (!email) {
@@ -47,17 +47,17 @@ document.getElementById('forgot-password-link').addEventListener('click', async 
     }
 });
 
-document.getElementById('togglePassword').addEventListener('click', function () {
-    const passwordField = document.getElementById('password');
-    const toggleIcon = document.getElementById('togglePassword');
+document.getElementById("togglePassword").addEventListener("click", function () {
+    let passwordInput = document.getElementById("password");
+    let icon = this;
 
-    if (passwordField.type === 'password') {
-        passwordField.type = 'text';
-        toggleIcon.classList.remove('fa-eye-slash');
-        toggleIcon.classList.add('fa-eye'); // Open eye when visible
+    if (passwordInput.type === "password") {
+        passwordInput.type = "text"; // Show password
+        icon.classList.remove("fa-eye-slash");
+        icon.classList.add("fa-eye");
     } else {
-        passwordField.type = 'password';
-        toggleIcon.classList.remove('fa-eye');
-        toggleIcon.classList.add('fa-eye-slash'); // Eye with slash when hidden
+        passwordInput.type = "password"; // Hide password
+        icon.classList.remove("fa-eye");
+        icon.classList.add("fa-eye-slash");
     }
 });
