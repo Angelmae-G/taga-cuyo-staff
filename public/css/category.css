@@ -11,7 +11,7 @@
     top: 90;
     width: 1%;
     height: 1%;
-    background-color: rgba(0, 0, 0, 0.4); /* Semi-transparent background */
+	background: linear-gradient(270deg, #e6ecf8, #dde0e4, #dde2e9);
 }
 
 /* Centering the modal content */
@@ -484,7 +484,7 @@ th {
 	width: calc(100% - 260px);
 	left: 260px;
 	transition: all .3s ease;
-    background: linear-gradient(270deg, #e6ecf8, #dde0e4, #dde2e9);
+	background: linear-gradient(270deg, #e6ecf8, #dde0e4, #dde2e9);
     background-size: 400% 400%;
     animation: gradientBG 15s ease infinite;
     overflow-x: hidden;
@@ -1059,7 +1059,7 @@ body {
     position: absolute;
 	margin-top: 150px;
 	margin-left:500px;
-	max-height: 700px;
+	max-height: 650px;
 }
 
 /* Close Button */

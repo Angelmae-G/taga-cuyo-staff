@@ -704,7 +704,7 @@ main .btn-send:hover {
 }
 body {
 	font-family: Arial, sans-serif;
-	background-color: #f4f4f4;
+	background: linear-gradient(270deg, #e6ecf8, #dde0e4, #dde2e9);
 	color: #333;
 }
 .container {

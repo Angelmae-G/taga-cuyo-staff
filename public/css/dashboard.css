@@ -126,7 +126,7 @@ html {
 }
 
 body {
-    background: linear-gradient(270deg, #c0c3c8, #dde0e4, #a8abaf);
+	background: linear-gradient(270deg, #e6ecf8, #dde0e4, #dde2e9);
     background-size: 400% 400%;
     overflow-x: hidden;
 }
