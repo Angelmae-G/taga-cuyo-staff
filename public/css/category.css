@@ -925,7 +925,7 @@ option {
 }
 body {
 	font-family: Arial, sans-serif;
-	background-color: #f4f4f4;
+    background: linear-gradient(270deg, #c0c3c8, #dde0e4, #a8abaf);
 	color: #333;
 }
 .container {
